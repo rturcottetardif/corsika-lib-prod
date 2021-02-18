@@ -1,0 +1,2 @@
+Antenna locations in IC Coordinates
+StnID, AntID, East [m], North [m], Altitude [m]

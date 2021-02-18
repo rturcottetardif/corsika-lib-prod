@@ -1,0 +1,8 @@
+DATA_DIR     = /home/coleman/work/data/coreas/data/
+LOGFILE_DIR  = /home/coleman/work/data/coreas/sim-log-files/
+TEMP_DIR     = /home/coleman/work/data/coreas/temp
+
+CORSIKA_DIR = /home/coleman/Programs/corsika/corsika-77401/run
+CORSIKA_EXE = corsika77401Linux_SIBYLL_fluka_thin_conex_coreas
+CORSIKA_NOTHIN = corsika77401Linux_SIBYLL_fluka_thin_conex
+CORSIKA_MPI = NONE
