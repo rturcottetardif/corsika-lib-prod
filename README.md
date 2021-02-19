@@ -12,3 +12,6 @@ CORSIKA_DIR: Where your corsika install lives (note this is the run dir and not 
 CORSIKA_EXE: The compiled exe that you want to use. This should have thinning turned on
 
 Currently this version is ONLY compatible with conex turned on because if Xmax is within 30grams/cm^2 of ground, the shower is run again with conex to get a proper xmax estimation.
+
+
+To submit jobs, be on the submit node of the corresponding cluster and edit MakeContinuousShowerLibrary.py or MakeDiscreteShowerLibrary.py for which showers you want to submit. Note that you have to go to the bottom of these files to edit the showers. Then run these files as ex: ./MakeDiscreteShowerLibrary.py and it will make submit scripts and submit them to the grid.
