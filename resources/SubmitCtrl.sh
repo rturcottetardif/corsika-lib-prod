@@ -15,18 +15,15 @@ source ~/.bashrc
 if [[ $HOST == asterix* ]]; then
   echo "Submitting from Asterix"
   ONASTERIX=1
-elif [[ $HOST == login* ]] || [[ $(hostname -s) == "r1n"* ]] || [[ $(hostname -d) == "localdomain.hpc.udel.edu" ]] || [[ $CLUSTERNAME == "Darwin" ]]; then
-  echo "Submitting from Caviness or Darwin"
-  if [[ -d /opt/shared/gcc/10.1.0/ ]]; then
-    vpkg_require binutils/2.35.1:gcc-10.1.0
-    vpkg_require python/3.8.6
-    echo $(which gfortran)
-  else
+elif [[ $CLUSTERNAME == "Darwin" ]]; then
+  echo "Submitting from  Darwin"
+  vpkg_require binutils/2.35.1:gcc-10.1.0
+  vpkg_require python/3.8.6
+elif [[ $CLUSTERNAME == "Caviness" ]] ; then
+  echo "Submitting from Caviness"
     vpkg_require gcc/9.1
     vpkg_require binutils/2.33.1
     vpkg_require python/3.7.4
-  fi 
-  ONCAVINESS=1
 elif [[ $(hostname -d) == "icecube.wisc.edu" ]]; then
   echo "Submitting from Condor"
   ONCONDOR=1

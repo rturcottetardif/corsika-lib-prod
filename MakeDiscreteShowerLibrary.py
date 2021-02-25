@@ -102,7 +102,7 @@ def MakeSubFile(zen, eng, azi, prim, n, id):
       file.write("#SBATCH --tasks-per-node=6\n")
       file.write("#SBATCH --mem-per-cpu=2000\n")
     else:
-      file.write("#SBATCH --time=7-00:00:00\n")
+      file.write("#SBATCH --time=3-12:00:00\n")
       file.write("#SBATCH --tasks-per-node=1\n")
       file.write("#SBATCH --mem-per-cpu=4096\n")
       if "asterix" == cluster:
@@ -176,7 +176,7 @@ if (__name__ == '__main__'):
 
   #showerList += ShowerString([0],[0.001], anti, proton, 1)
 
-  showerList += ShowerString([20],[10**-1.5], aligned, proton, 10)
+  showerList += ShowerString([20],[10**-3], anti, proton, 1)
   
   for shwr in showerList:
     shwr.SubmitShowers()
