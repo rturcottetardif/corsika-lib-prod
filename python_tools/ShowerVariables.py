@@ -44,6 +44,7 @@ class ShowerVariables(object):
     self.primary = args.primary
     self.energy = args.energy
     self.zenith = args.zenith
+    self.azimuth = args.azimuth
 
   def PrintShowerVariables(self):
     print("-----Shower Variables-----")
