@@ -10,14 +10,22 @@ HOST=$(hostname -s)
 
 ONCONDOR=0
 
+source ~/.bashrc
+
 if [[ $HOST == asterix* ]]; then
   echo "Submitting from Asterix"
   ONASTERIX=1
-elif [[ $HOST == login* ]] || [[ $(hostname -d) == "localdomain.hpc.udel.edu" ]]; then
-  echo "Submitting from Caviness"
-  vpkg_require gcc/9.1
-  vpkg_require binutils/2.33.1
-  vpkg_require python/3.7.4
+elif [[ $HOST == login* ]] || [[ $(hostname -s) == "r1n"* ]] || [[ $(hostname -d) == "localdomain.hpc.udel.edu" ]] || [[ $CLUSTERNAME == "Darwin" ]]; then
+  echo "Submitting from Caviness or Darwin"
+  if [[ -d /opt/shared/gcc/10.1.0/ ]]; then
+    vpkg_require binutils/2.35.1:gcc-10.1.0
+    vpkg_require python/3.8.6
+    echo $(which gfortran)
+  else
+    vpkg_require gcc/9.1
+    vpkg_require binutils/2.33.1
+    vpkg_require python/3.7.4
+  fi 
   ONCAVINESS=1
 elif [[ $(hostname -d) == "icecube.wisc.edu" ]]; then
   echo "Submitting from Condor"
@@ -37,8 +45,6 @@ if [[ ! -f $HERE/SubmitCtrl.sh ]]; then
 fi
 
 FLAGS=$@
-
-source ~/.bashrc
 
 QUERY_PY=$HERE/../Query.py
 
@@ -91,7 +97,7 @@ date
 if [[ ! -d $TEMPDIR/SIM${CORSIKA_ID}_coreas ]]; then
   echo "I think the simulation did not complete!"
   echo "I cannot find $TEMPDIR/SIM${CORSIKA_ID}_coreas"
-  # exit 1  #Alanfix
+  exit 1
 else
   echo " "
   echo "-----Simulation completed successfully!-----"
@@ -102,7 +108,7 @@ cd $BASEDIR
 
 XMAX=$(grep "PARAMETERS  " $($QUERY_PY $FLAGS --dir longfile) | awk '{print $5}')
 echo "GH fit Xmax = $XMAX"
-XMAX=10000
+
 if [[ $($QUERY_PY $FLAGS --xmaxBelow $XMAX) == 1 ]]; then
   echo ""
   echo ""
