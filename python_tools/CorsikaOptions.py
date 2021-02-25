@@ -24,6 +24,7 @@ class CorsikaOptions(object):
     self.useStar = False
 
     self.thinning = False
+    self.realAtmos = False
     self.parallel = False
 
     self.minAzi = 0.0
@@ -68,7 +69,7 @@ class CorsikaOptions(object):
     parser.add_argument('--energyIndex', type=float, default=self.energyIndex)
 
     parser.add_argument('--randRadius', type=float, default=self.randRadius)
-
+    parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
 
     args, unknown = parser.parse_known_args()
 
@@ -79,12 +80,13 @@ class CorsikaOptions(object):
     self.thinning = args.thin
     self.parallel = args.parallel
     self.useStar = args.usestar
+    self.realAtmos = args.realAtmosphere
 
     self.useRandAzi = args.randazi
 
     self.useRandZen = ((args.minSin2 != CORSIKAOPT_NOT_SET) or (args.maxSin2 != CORSIKAOPT_NOT_SET))
     if (args.minSin2 != CORSIKAOPT_NOT_SET) and (args.maxSin2 != CORSIKAOPT_NOT_SET): #Randomness set by sin2
-      self.minSin2 = args.minSin2
+      self.minSin2 = args.minSin2qstat
       self.maxSin2 = args.maxSin2
 
     self.useRandEnergy = (args.dE != self.dE) or (args.minLgE != self.minLgE)

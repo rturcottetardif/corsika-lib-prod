@@ -18,6 +18,9 @@ class FileHandler(object):
     self.corsikanothin = "NOTSET"
     self.corsikampi = "NOTSET"
 
+    self.runID = "NOTSET"
+    self.eventID = "NOTSET"
+
     self.corOpts = CorsikaOptions.CorsikaOptions()
     self.InitDirectories()
 
@@ -98,17 +101,25 @@ class FileHandler(object):
       else:
         subDir += "array-2020/"
     if 1 == libType:
-      subDir += "discrete/"
+      subDir += "realEvents/"
+      if self.corOpts.useStar:
+        subDir += "star-pattern/"
+      else:
+        subDir += "array-2020/"
 
-    subDir += self.corOpts.GetPrimaryName() + "/"
+    # subDir += self.corOpts.GetPrimaryName() + "/"
 
     if 0 == libType: ##Continuous
       subDir += "lgE_{0:0.1f}/".format(self.corOpts.minLgE)
       subDir += "sin2_{0:0.1f}/".format(self.corOpts.minSin2)
     elif 1 == libType: ##Discrete
-      prettyEnergy = np.log10(self.corOpts.shower.energy) + 15
-      subDir += "lgE_{0:0.1f}/".format(prettyEnergy)
-      subDir += "Zen_{0:0.0f}/".format(self.corOpts.shower.zenith)
+      # prettyEnergy = np.log10(self.corOpts.shower.energy) + 15
+      # subDir += "lgE_{0:0.1f}/".format(prettyEnergy)
+      # subDir += "Zen_{0:0.0f}/".format(self.corOpts.shower.zenith)
+
+      subDir += "runID_{0}_eventID_{1}/".format(self.runID, self.eventID)
+    
+    subDir += self.corOpts.GetPrimaryName() + "/"
 
     return subDir
 
@@ -201,7 +212,11 @@ class FileHandler(object):
     import argparse
     parser = argparse.ArgumentParser(description='Variable class for CORSIKA')
     parser.add_argument('--temp', action='store_true')
+    parser.add_argument('--runID', type=int)#, required=True)
+    parser.add_argument('--eventID', type=int)#, required=True)
     args, unknown = parser.parse_known_args()
 
+    self.runID = args.runID
+    self.eventID = args.eventID
     self.useTempDir = args.temp
     self.corOpts.ParseArguments()
