@@ -105,8 +105,14 @@ file.write('MAGNET      {0}  {1}\n'.format(handler.corOpts.magneticHorizontal, -
 file.write('LONGI       T     10.  T    T\n')
 file.write('RADNKG      2.E5\n')
 file.write('ATMOD       33\n')
+
+if handler.corOpts.realAtmos:
+  file.write('ATMFILE     /data/user/rturcotte/corsika_simulation/atmosphere/atmos_runId{0}_eventId{1}.txt\n'.format(handler.runID, handler.eventID))
+else:
+  file.write('ATMOD       33\n')
+
 file.write('DIRECT      {0}\n'.format(headdir))#####change to required directory
-file.write('USER        acoleman\n')
+file.write('USER        rturcotte\n')
 file.write('EXIT\n')
 
 file.close()

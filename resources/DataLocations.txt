@@ -1,8 +1,9 @@
-DATA_DIR     = /home/coleman/work/data/coreas/data/
-LOGFILE_DIR  = /home/coleman/work/data/coreas/sim-log-files/
-TEMP_DIR     = /home/coleman/work/data/coreas/temp
+DATA_DIR     = /data/user/rturcotte/corsika_simulation/data/
+LOGFILE_DIR  = /data/user/rturcotte/corsika_simulation/log/
+TEMP_DIR     = /data/user/rturcotte/corsika_simulation/temp/
+ANALYSIS_DIR = /home/2134/work/datasets/coreas/data/
 
-CORSIKA_DIR = /home/coleman/Programs/corsika/corsika-77401/run
+CORSIKA_DIR = /data/user/rturcotte/corsika/corsika-77401/run/
 CORSIKA_EXE = corsika77401Linux_SIBYLL_fluka_thin_conex_coreas
-CORSIKA_NOTHIN = corsika77401Linux_SIBYLL_fluka_thin_conex
+CORSIKA_NOTHIN = corsika77401Linux_SIBYLL_fluka_coreas
 CORSIKA_MPI = NONE
