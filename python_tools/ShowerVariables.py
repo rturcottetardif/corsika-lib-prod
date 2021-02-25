@@ -5,7 +5,7 @@ import numpy as np
 class ShowerVariables(object):
   """docstring for ShowerVariables"""
   def __init__(self):
-    
+
     self.zenith = 0
     self.azimuth = 0
     self.energy = 0.001
@@ -44,6 +44,7 @@ class ShowerVariables(object):
     self.primary = args.primary
     self.energy = args.energy
     self.zenith = args.zenith
+    self.azimuth = args.azimuth
 
   def PrintShowerVariables(self):
     print("-----Shower Variables-----")

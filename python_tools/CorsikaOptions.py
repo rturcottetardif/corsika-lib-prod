@@ -86,7 +86,7 @@ class CorsikaOptions(object):
 
     self.useRandZen = ((args.minSin2 != CORSIKAOPT_NOT_SET) or (args.maxSin2 != CORSIKAOPT_NOT_SET))
     if (args.minSin2 != CORSIKAOPT_NOT_SET) and (args.maxSin2 != CORSIKAOPT_NOT_SET): #Randomness set by sin2
-      self.minSin2 = args.minSin2qstat
+      self.minSin2 = args.minSin2
       self.maxSin2 = args.maxSin2
 
     self.useRandEnergy = (args.dE != self.dE) or (args.minLgE != self.minLgE)

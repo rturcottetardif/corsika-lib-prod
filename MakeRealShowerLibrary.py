@@ -12,6 +12,7 @@ from icecube.icetray import I3Frame, I3Units
 IdBegin = 0
 UseParallel = False
 UseStar = False
+# Todo : put the shower core in the Not Star simulation
 SendToCondor = False
 UseRealAtmos = True
 
@@ -275,9 +276,9 @@ if (__name__ == '__main__'):
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
     for i in range(len(runIds)):
         print(runIds[i], eventIds[i], zens[i], azis[i], energies[i])
-        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+        # writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
         # showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries],
-    showerList += ShowerString(runIds[0], eventIds[0], zens[0], azis[0], 1, [proton, iron], 1)
-    for shwr in showerList:
-        shwr.SubmitShowers()
+    # showerList += ShowerString(runIds[0], eventIds[0], zens[0], azis[0], 1, [proton, iron], 1)
+    # for shwr in showerList:
+    #     shwr.SubmitShowers()
     # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
