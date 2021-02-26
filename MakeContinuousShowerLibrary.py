@@ -28,7 +28,9 @@ def GetCluster():
 
   if "asterix" in str(stdout):
     return "asterix"
-  elif "login" in str(stdout):
+  elif "Darwin" == os.getenv("CLUSTERNAME"):
+    return "darwin"
+  elif "login" in str(stdout) or "Caviness" == os.getenv("CLUSTERNAME"):
     return "caviness"
 
   print("YIKES! Who are you? ", str(stdout))
@@ -51,21 +53,23 @@ class ShowerGroup(object):
 
 
     cluster = GetCluster()
-    if "caviness" == cluster:
+    print("On cluster:", cluster)
+    if cluster in ["caviness"]:
       group = os.environ['WORKGROUP']
       print("Submitting on workgroup", group)
 
       subprocess.call(["sbatch", "--partition="+str(group), "tempSubFile.submit"])
 
+    elif "darwin" == cluster:
+      subprocess.call(["sbatch", "tempSubFile.submit"])
+
     elif "asterix" == cluster:
-      print("You are on Asterix")
       subprocess.call(["sbatch", "tempSubFile.submit"])
 
     elif "icecube" == cluster:
-      print("You are on NPX")
       subprocess.call(["condor_submit", "tempSubFile.submit", "-batch-name", "{0:0.1f}_{1:0.2f}".format(self.zenith[0], self.energy)])
 
-    # subprocess.call(["rm", "tempSubFile.submit"])
+    subprocess.call(["rm", "tempSubFile.submit"])
 
 def ShowerString(zens, engs, prim, n):
   tempList = []
@@ -92,13 +96,13 @@ def MakeSubFile(zen, eng, prim, n, id):
   pathlib.Path(logPath).mkdir(parents=True, exist_ok=True)
 
   cluster = GetCluster()
-  if "caviness" == cluster or "asterix" == cluster:
+  if cluster in ["caviness", "darwin", "asterix"]:
 
     file.write("#SBATCH --job-name={0:0.1f}_{1:0.2f}\n".format(zen[0], eng))
     file.write("#SBATCH --output={0}log.%a.out\n".format(logPath))
     file.write("#SBATCH --nodes=1\n")
 
-    if "caviness" == cluster:
+    if cluster in ["caviness", "darwin"]:
       file.write("#SBATCH --export=NONE\n")
 
     file.write("#SBATCH --time=7-00:00:00\n")
@@ -166,7 +170,7 @@ if (__name__ == '__main__'):
   iron = 5626
 
   #showerList += ShowerString([sin2low, sin2high],[Energies], Primary, NShowers)
-  showerList += ShowerString([[0.7, 0.8]], [17.6, 17.7, 17.8], iron, 200)
+  showerList += ShowerString([[0.1, 0.2]], [16.1], proton, 200)
 
   for shwr in showerList:
     shwr.SubmitShowers()

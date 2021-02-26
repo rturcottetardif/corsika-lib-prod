@@ -22,9 +22,13 @@ def GetCluster():
   if "icecube" in str(stdout):
     return "icecube"
 
+  if "Darwin" == os.getenv("CLUSTERNAME"):
+    return "darwin"
+
   stdout,stderr = subprocess.Popen(['hostname', '-s'], 
              stdout=subprocess.PIPE, 
              stderr=subprocess.STDOUT).communicate()
+
 
   if "asterix" in str(stdout):
     return "asterix"
@@ -55,13 +59,16 @@ class ShowerGroup(object):
 
       subprocess.call(["sbatch", "--partition="+str(group), "tempSubFile.submit"])
 
+    elif "darwin" == cluster:
+      subprocess.call(["sbatch", "tempSubFile.submit"])
+
     elif "asterix" == cluster:
       subprocess.call(["sbatch", "tempSubFile.submit"])
 
     elif "icecube" == cluster:
       subprocess.call(["condor_submit", "tempSubFile.submit", "-batch-name", "{0:0.0f}_{1:0.1f}".format(self.zenith, np.log10(self.energy)+15)])
 
-    # subprocess.call(["rm", "tempSubFile.submit"])
+    subprocess.call(["rm", "tempSubFile.submit"])
 
 def ShowerString(zens, engs, azi, prim, n):
   tempList = []
@@ -88,13 +95,13 @@ def MakeSubFile(zen, eng, azi, prim, n, id):
   pathlib.Path(logPath).mkdir(parents=True, exist_ok=True)
 
   cluster = GetCluster()
-  if "caviness" == cluster or "asterix" == cluster:
+  if cluster in ["darwin", "caviness", "asterix"]:
 
     file.write("#SBATCH --job-name={0:0.0f}_{1:0.1f}\n".format(zen, np.log10(eng)+15))
     file.write("#SBATCH --output={0}log.%a.out\n".format(logPath))
     file.write("#SBATCH --nodes=1\n")
 
-    if "caviness" == cluster:
+    if cluster in ["caviness", "darwin"]:
       file.write("#SBATCH --export=NONE\n")
 
     if UseParallel:
