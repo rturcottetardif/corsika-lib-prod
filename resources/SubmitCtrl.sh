@@ -57,6 +57,7 @@ echo "EXEDIR = $EXEDIR"
 echo "EXE = $EXE"
 echo "TEMPDIR = $TEMPDIR"
 echo "CORSIKA_ID = $CORSIKA_ID"
+echo "FLAGS = $FLAGS"
 
 #Don't make the same file if it already exists on the Madison cluster
 if [[ $FLAGS == *"--movetocondor"* ]]; then
