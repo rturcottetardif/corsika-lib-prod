@@ -178,11 +178,12 @@ if [[ $FLAGS == *"--movetocondor"* ]]; then
     if [[ $ONCONDOR == 1 ]]; then
       echo "You are on Condor, moving directly"
 
-      if [[ ! -d $CONDORDIR ]]; then
-        mkdir -p $CONDORDIR
+      if [[ ! -d $CONDORDIR/${CORSIKA_ID} ]]; then
+        mkdir -p $CONDORDIR/${CORSIKA_ID}
       fi
 
-      rsync -auP $FINALDIR/. $CONDORDIR/ > /dev/null 2>&1
+      echo rsync -auP $FINALDIR $CONDORDIR/${CORSIKA_ID}/.
+      rsync -auP $FINALDIR $CONDORDIR/${CORSIKA_ID}/. > /dev/null 2>&1
       rm -r $FINALDIR
     else
       #Let the transfer cronjobs know that this file is complete
