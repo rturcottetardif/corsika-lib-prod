@@ -3,7 +3,7 @@ Package to create a library of CORSIKA/CoREAS simulations specifically for the S
 
 These have been tested and will work on the Asterix (Udel), Caviness (Udel), Darwin (Udel), and cobalt (IC) clusters.
 
-You need to first update the file `resources/DataLocations.txt` to point to a few directories, exes, etc.
+You need to first make a copy of the file `resources/BaseDataLocations.txt` and place it at `resources/DataLocations.txt`. Edit it to set the following variables:
 * `DATA_DIR`: Where you intend your data to eventually live.
 * `LOGFILE_DIR`: Where your log files from the simulations will go
 * `TEMP_DIR`: You have the option to create the showers in a temporary directory ex: scratch and then move it to DATA_DIR later. This is that temp dir
