@@ -1,17 +1,24 @@
+#!/usr/bin/python3
+
 import numpy as np
 from icecube import dataclasses, dataio
 from icecube.dataclasses import I3Time
 import subprocess
+# from . import FileHandler
+
+# handler = FileHandler.FileHandler()
 
 
 def isFileExists(runID, eventID):
     filename = "/data/user/rturcotte/corsika_simulation/atmosphere/atmos_runId{0}_eventId{1}.txt".format(runID, eventID)
-    if filename return True
-    else return False
+    if filename: return True
+    else: return False
+
 
 def createEmptyGDASFile(runID, eventID):
     f = open("/data/user/rturcotte/corsika_simulation/atmosphere/atmos_runId{0}_eventId{1}.txt".format(runID, eventID), "w+")
     return f.name
+
 
 def runGDAS(runID, eventID, unixTime):
     if isFileExist(runID, eventID):
@@ -22,7 +29,8 @@ def runGDAS(runID, eventID, unixTime):
         print(runID, eventID, unixTime)
         print(filename)
         subprocess.run(["python", "/data/user/rturcotte/corsika/corsika-77401/src/utils/gdastool", "--observatory", "icetop", "-o", filename, "-t", unixTime])
-        
+
+
 def getShowerIdentification(filename):
     in_file = dataio.I3File(filename, 'r')
     for frame in in_file:
@@ -32,6 +40,7 @@ def getShowerIdentification(filename):
         unixTime = utcTime.unix_time
     return runID, eventID, unixTime
 
+
 def runAllGDASforOneFile(filename):
     in_file = dataio.I3File(filename, 'r')
     for frame in in_file:
@@ -39,11 +48,13 @@ def runAllGDASforOneFile(filename):
         unixTime = utcTime.unix_time
         runGDAS(frame['I3EventHeader'].run_id, frame['I3EventHeader'].event_id, unixTime)
 
-#getShowerIdentification("/data/user/rturcotte/showers/showers_12112020.i3.gz")
-filename = "/data/user/rturcotte/showers/showers_12112020.i3.gz"
-runAllGDASforOneFile(filename)
 
+if __name__ == '__main__':
+    #getShowerIdentification("/data/user/rturcotte/showers/showers_12112020.i3.gz")
+    filename = "/data/user/rturcotte/showers/showers_12112020.i3.gz"
+    #runAllGDASforOneFile(filename)
 
+#     print(handler.atmosdir)
 
 
 

@@ -14,7 +14,7 @@ UseParallel = False
 UseStar = True
 # Todo : put the shower core in the Not Star simulation
 SendToCondor = False
-UseRealAtmos = True
+UseRealAtmos = False
 
 handler = FileHandler.FileHandler()
 
@@ -257,9 +257,12 @@ if (__name__ == '__main__'):
     i3var = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(i3var)
 
+    print(handler.atmosdir)
+    print(handler.i3dir)
+
     proton = 14
     iron = 5626
-    nShowers = 10
+    nShowers = 1
 
     # showerFile = "/data/user/rturcotte/showers/showersV4_12112020.i3.gz"
     showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
@@ -274,11 +277,11 @@ if (__name__ == '__main__'):
     events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
 
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    for i in range(len(runIds)):
-        print(runIds[i], eventIds[i], zens[i], azis[i], energies[i])
-        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
-        # showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries],
-    #     showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], 10)
+    # for i in range(len(runIds)):
+    #     print(runIds[i], eventIds[i], zens[i], azis[i], energies[i])
+    #     writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    #     # showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries],
+    #     showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
     # for shwr in showerList:
     #     shwr.SubmitShowers()
     # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")

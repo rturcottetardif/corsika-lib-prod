@@ -5,6 +5,7 @@ from pathlib import Path
 from . import CorsikaOptions
 import numpy as np
 
+
 class FileHandler(object):
   """docstring for FileHandler"""
   def __init__(self):
@@ -12,6 +13,8 @@ class FileHandler(object):
     self.datadir = "NOTSET" ##location of processed data
     self.logfiledir = "NOTSET"  ##location to put grid-log files in (.out/.err)
     self.tempdir = "NOTSET"  ##location to make showers before copying them to final location (if using --temp flag)
+    self.atmosdir = "NOTSET"  #location of the real atmosphere directory
+    self.i3dir = "NOTSET" #location of the i3file from simulations
 
     self.corsikadir = "NOTSET"
     self.corsikaexe = "NOTSET"
@@ -30,7 +33,7 @@ class FileHandler(object):
     if not filename[-1] == '/':
       filename +='/'
     return filename
-    
+
   def InitDirectories(self):
     ###################################
     ##  Read in the directory locations
@@ -75,6 +78,10 @@ class FileHandler(object):
         self.logfiledir = self.AssertFinalSlash(columns[2])
       elif flag == "TEMP_DIR":
         self.tempdir = self.AssertFinalSlash(columns[2])
+      elif flag == "I3FILE_DIR":
+        self.i3dir = self.AssertFinalSlash(columns[2])
+      elif flag == "ATMOS_DIR":
+        self.atmosdir = self.AssertFinalSlash(columns[2])
 
   def GetResourceDir(self):
     return self.basedir + "/resources"
@@ -118,12 +125,12 @@ class FileHandler(object):
       # subDir += "Zen_{0:0.0f}/".format(self.corOpts.shower.zenith)
 
       subDir += "runID_{0}_eventID_{1}/".format(self.runID, self.eventID)
-    
+
     subDir += self.corOpts.GetPrimaryName() + "/"
 
     return subDir
 
-    
+
 
   def GetHeadDir(self):
     type = self.corOpts.GetLibraryType()
@@ -206,7 +213,7 @@ class FileHandler(object):
     return self.GetHeadDir() + "SIM" + self.SixDigitID() + ".list"
 
   def GetLongFileName(self):
-    return self.GetHeadDir() + "DAT" + self.SixDigitID() + ".long"    
+    return self.GetHeadDir() + "DAT" + self.SixDigitID() + ".long"
 
   def ParseArguments(self):
     import argparse
