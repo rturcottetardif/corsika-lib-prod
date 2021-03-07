@@ -69,7 +69,7 @@ file.write('THETAP      {0:0.4f}    {0:0.4f}\n'.format(handler.corOpts.shower.ze
 file.write('PHIP        {0:0.4f}    {0:0.4f}\n'.format(handler.corOpts.shower.azimuth)) ###If you want corsika to choose random azimuth, set azi1=-180 and azi2=180. Better to use this only if you have core(0,0) for radio
 
 if handler.corOpts.thinning:
-  file.write('THIN        {0}    {1}    0.0\n'.format(thinningVal, maxWeight)) 
+  file.write('THIN        {0}    {1}    0.0\n'.format(thinningVal, maxWeight))
   file.write('THINH       2.00E+02 10.000000\n')
 else:
   print("REMEMBER TO ADD BACK IN MULTITHIN")
@@ -107,7 +107,7 @@ file.write('RADNKG      2.E5\n')
 file.write('ATMOD       33\n')
 
 if handler.corOpts.realAtmos:
-  file.write('ATMFILE     /data/user/rturcotte/corsika_simulation/atmosphere/atmos_runId{0}_eventId{1}.txt\n'.format(handler.runID, handler.eventID))
+  file.write('ATMFILE     {0}/atmos_runId{1}_eventId{2}.txt\n'.format(handler.atmosdir, handler.runID, handler.eventID))
 else:
   file.write('ATMOD       33\n')
 
