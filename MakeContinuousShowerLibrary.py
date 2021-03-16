@@ -170,7 +170,7 @@ if (__name__ == '__main__'):
   iron = 5626
 
   #showerList += ShowerString([sin2low, sin2high],[Energies], Primary, NShowers)
-  showerList += ShowerString([[0.1, 0.2]], [16.1], proton, 200)
+  showerList += ShowerString([[0.2,0.3]], [12.0], proton, 1)
 
   for shwr in showerList:
     shwr.SubmitShowers()

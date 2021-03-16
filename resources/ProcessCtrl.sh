@@ -14,13 +14,6 @@ fi
 
 source ~/.bashrc
 
-VARIABLE_PY=$HERE/../util/variables.py
-if [[ ! -f $VARIABLE_PY ]]; then
-  VARIABLE_PY=$(find $HERE |grep variables.py |tail -1)
-fi
-
-echo "variables.py is at $VARIABLE_PY"
-
 HERE="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 echo "HERE: " $HERE
 
@@ -35,7 +28,7 @@ if [[ ! -d $HEADDIR ]]; then
   exit 0
 fi
 if [[ ! -d $HEADDIR/$ID ]]; then
-  echo "$HEADDIR is not a directory"
+  echo "$HEADDIR/$ID is not a directory"
   exit 0
 fi
 
