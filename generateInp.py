@@ -107,7 +107,7 @@ file.write('RADNKG      2.E5\n')
 file.write('ATMOD       33\n')
 
 if handler.corOpts.realAtmos:
-  file.write('ATMFILE     {0}/atmos_runId{1}_eventId{2}.txt\n'.format(handler.atmosdir, handler.runID, handler.eventID))
+  file.write('ATMFILE     {0}atmos_runId{1}_eventId{2}.txt\n'.format(handler.atmosdir, handler.runID, handler.eventID))
 else:
   file.write('ATMOD       33\n')
 

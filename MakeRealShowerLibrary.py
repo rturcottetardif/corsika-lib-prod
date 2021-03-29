@@ -14,7 +14,7 @@ UseParallel = False
 UseStar = True
 # Todo : put the shower core in the Not Star simulation
 SendToCondor = False
-UseRealAtmos = False
+UseRealAtmos = True
 
 handler = FileHandler.FileHandler()
 
@@ -149,7 +149,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
         else:
             file.write("Universe = vanilla\n")
             file.write("request_memory = 2GB\n")
-            file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+            #file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -194,7 +194,7 @@ def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
     filename = "/data/user/rturcotte/corsika-library-production/log/simulated_showers.txt"
     log = open(filename, "a")
     log.write("=============================================== \n")
-    log.write("star : {0}".format(UseStar))
+    log.write("star : {0} \n".format(UseStar))
     log.write("{0} \n".format(date.today()))
     log.write("runId {0}, eventId {1} \n".format(runId, eventId))
     log.write("Zenith  : {0}  in deg\n".format(zenith))
@@ -245,7 +245,7 @@ def pickEvents(showerFile, wantedEvents):
 
 
 def aziI3ParticleToCoREAS(azimuth):
-    return azimuth - radcube.GetMagneticRotation()
+    return (azimuth / I3Units.deg - radcube.GetMagneticRotation() / I3Units.deg + 180)*I3Units.deg
 
 
 showerList = []
@@ -257,22 +257,21 @@ if (__name__ == '__main__'):
     i3var = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(i3var)
 
-
     proton = 14
     iron = 5626
-    nShowers = 1
+    nShowers = 10
 
-    # showerFile = "/data/user/rturcotte/showers/showersV4_12112020.i3.gz"
     showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
-    # showerFile = "/data/user/rturcotte/showers/showersV4_20210217_clear.i3.gz"
+    #showerFile = "/data/user/rturcotte/showers/showersV4_20210217_clear.i3.gz"
     events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
+    #events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
 
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
     for i in range(len(runIds)):
-        print(runIds[i], eventIds[i], zens[i], azis[i], energies[i])
-        # writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
-        # showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries],
-    showerList += ShowerString(runIds[0], eventIds[0], zens[0], azis[0], energies[0], [proton, iron], nShowers)
+        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
+        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+        """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+        showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
     for shwr in showerList:
         shwr.SubmitShowers()
     # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
