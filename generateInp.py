@@ -104,7 +104,7 @@ file.write('MAXPRT      1\n')
 file.write('MAGNET      {0}  {1}\n'.format(handler.corOpts.magneticHorizontal, -1*handler.corOpts.magneticUp))  #Corsika expects negative z
 file.write('LONGI       T     10.  T    T\n')
 file.write('RADNKG      2.E5\n')
-file.write('ATMOD       33\n')
+#file.write('ATMOD       33\n')
 
 if handler.corOpts.realAtmos:
   file.write('ATMFILE     {0}atmos_runId{1}_eventId{2}.txt\n'.format(handler.atmosdir, handler.runID, handler.eventID))
