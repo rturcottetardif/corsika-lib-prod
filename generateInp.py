@@ -71,6 +71,8 @@ file.write('PHIP        {0:0.4f}    {0:0.4f}\n'.format(handler.corOpts.shower.az
 if handler.corOpts.thinning:
   file.write('THIN        {0}    {1}    0.0\n'.format(thinningVal, maxWeight))
   file.write('THINH       2.00E+02 10.000000\n')
+
+
 else:
   print("REMEMBER TO ADD BACK IN MULTITHIN")
   # file.write('MTHINR      0.e2\n')
