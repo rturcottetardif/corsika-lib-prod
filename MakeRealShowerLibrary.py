@@ -15,6 +15,7 @@ UseStar = True
 # Todo : put the shower core in the Not Star simulation
 SendToCondor = False
 UseRealAtmos = True
+FastShowers = True
 
 handler = FileHandler.FileHandler()
 
@@ -180,6 +181,8 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
     if UseRealAtmos:
         file.write("--realAtmosphere ")
 
+    if FastShowers:
+        file.write("--fastShowers")
     file.write("\n")
 
     if "icecube" == cluster:
@@ -194,7 +197,7 @@ def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
     filename = "/data/user/rturcotte/corsika-library-production/log/simulated_showers.txt"
     log = open(filename, "a")
     log.write("=============================================== \n")
-    log.write("star : {0} \n".format(UseStar))
+    log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
     log.write("{0} \n".format(date.today()))
     log.write("runId {0}, eventId {1} \n".format(runId, eventId))
     log.write("Zenith  : {0}  in deg\n".format(zenith))
@@ -259,12 +262,12 @@ if (__name__ == '__main__'):
 
     proton = 14
     iron = 5626
-    nShowers = 10
+    nShowers = 2
 
-    showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
-    #showerFile = "/data/user/rturcotte/showers/showersV4_20210217_clear.i3.gz"
-    events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
-    #events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
+    #showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
+    showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
+    #events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
+    events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
 
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
     for i in range(len(runIds)):

@@ -108,11 +108,19 @@ class FileHandler(object):
       else:
         subDir += "array-2020/"
     if 1 == libType:
-      subDir += "realEvents/"
-      if self.corOpts.useStar:
-        subDir += "star-pattern/"
-      else:
-        subDir += "array-2020/"
+      if not self.corOpts.fastShowers:
+        subDir += "realEvents/"
+        if self.corOpts.useStar:
+          subDir += "star-pattern/"
+        elif not self.corOpts.useStar:
+          subDir += "array-2020/"
+      elif self.corOpts.fastShowers:
+        subDir += "fastShowers/"
+        if self.corOpts.useStar:
+          subDir += "star-pattern/"
+        elif not self.corOpts.useStar:
+          subDir += "array-2020/"
+
 
     # subDir += self.corOpts.GetPrimaryName() + "/"
 

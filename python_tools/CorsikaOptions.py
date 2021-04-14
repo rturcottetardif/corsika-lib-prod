@@ -20,11 +20,12 @@ class CorsikaOptions(object):
     self.magneticNorth = 14.399
     #Angle between IC coords and CORSIKA coords ~= 120.72 deg
     self.rotationAngle = np.arctan2(self.magneticNorth, self.magneticEast)
-    
+
     self.useStar = False
 
     self.thinning = False
     self.realAtmos = False
+    self.fastShowers = False
     self.parallel = False
 
     self.minAzi = 0.0
@@ -70,6 +71,7 @@ class CorsikaOptions(object):
 
     parser.add_argument('--randRadius', type=float, default=self.randRadius)
     parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
+    parser.add_argument('--fastShowers', action='store_true', help='use CONEX in fast simulation')
 
     args, unknown = parser.parse_known_args()
 
@@ -81,6 +83,7 @@ class CorsikaOptions(object):
     self.parallel = args.parallel
     self.useStar = args.usestar
     self.realAtmos = args.realAtmosphere
+    self.fastShowers = args.fastShowers
 
     self.useRandAzi = args.randazi
 
@@ -124,7 +127,7 @@ class CorsikaOptions(object):
       r = np.sqrt(random.random()) * self.randRadius
       phi = np.pi * 2 * random.random()
       self.shower.coreX = r * np.cos(phi)
-      self.shower.coreY = r * np.sin(phi) 
+      self.shower.coreY = r * np.sin(phi)
     else:
       self.shower.coreX = 0.
       self.shower.coreY = 0.

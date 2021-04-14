@@ -89,8 +89,12 @@ if handler.corOpts.parallel:
     ecut = emax * 1.e-1
   file.write('PARALLEL    {0} {1} 1 F'.format(ecut, emax))
 
-
-file.write('CASCADE     F F F\n')
+if not handler.corOpts.fastShowers:
+  file.write('CASCADE     F F F\n')
+elif handler.corOpts.fastShowers:
+  file.write('CASCADE     T T T\n')
+else:
+  file.write('CASCADE     F F F\n')
 
 file.write('ELMFLG      T    T\n')
 file.write('OBSLEV      {0}\n'.format(handler.corOpts.obslev))
