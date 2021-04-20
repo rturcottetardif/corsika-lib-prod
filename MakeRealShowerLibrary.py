@@ -269,12 +269,31 @@ if (__name__ == '__main__'):
     #events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
     events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
 
+    # runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
+    # for i in range(len(runIds)):
+    #     print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
+    #     writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    #     """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    #     showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    # for shwr in showerList:
+    #     shwr.SubmitShowers()
+    # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
+
+    # ONE CONEX SHOWER
+    nShowers = 10
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    for i in range(len(runIds)):
-        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
-        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    for i in range(5):
+        writeLog(runIds[4], eventIds[4], zens[4], azis[4], energies[4]+0.1*i, [proton, iron], nShowers)
         """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-        showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+        showerList += ShowerString(runIds[4], eventIds[4], zens[4], azis[4], energies[4]+0.1*i, [proton, iron], nShowers)
     for shwr in showerList:
         shwr.SubmitShowers()
-    # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
+
+
+
+
+
+
+
+
+
