@@ -105,9 +105,10 @@ fi
 cd $BASEDIR
 
 XMAX=$(grep "PARAMETERS  " $($QUERY_PY $FLAGS --dir longfile) | awk '{print $5}')
-echo "GH fit Xmax = $XMAX"
+ZENITH=$(grep "THETAP " $($QUERY_PY $FLAGS --dir inpfile) | awk '{print $2}')
+echo "GH fit Xmax = $XMAX and zenith = $ZENITH"
 
-if [[ $($QUERY_PY $FLAGS --xmaxBelow $XMAX) == 1 ]]; then
+if [[ $($QUERY_PY --xmaxBelow $XMAX $ZENITH) == 1 ]]; then
   echo ""
   echo ""
   echo "Xmax is below ground. Will resimulate using CONEX."

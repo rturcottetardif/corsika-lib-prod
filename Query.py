@@ -5,7 +5,7 @@ import python_tools
 import argparse
 parser = argparse.ArgumentParser(description='Variable class for CORSIKA')
 parser.add_argument('--dir', type=str, default="", required=False)
-parser.add_argument('--xmaxBelow', type=float, default=-1, required=False)
+parser.add_argument('--xmaxBelow', nargs=2, type=float, required=False)
 args, unknown = parser.parse_known_args()
 
 handler = python_tools.FileHandler.FileHandler()
@@ -15,7 +15,7 @@ if args.dir != "":
   handler.PrintFileOrDirectory(args.dir)
 
 elif args.xmaxBelow != -1:
-  print(handler.corOpts.XmaxBelowGround(args.xmaxBelow))
+  print(handler.corOpts.XmaxBelowGround(args.xmaxBelow[0], args.xmaxBelow[1]))
 
 else:  
 
