@@ -15,18 +15,15 @@ source ~/.bashrc
 if [[ $HOST == asterix* ]]; then
   echo "Submitting from Asterix"
   ONASTERIX=1
-elif [[ $HOST == login* ]] || [[ $(hostname -s) == "r1n"* ]] || [[ $(hostname -d) == "localdomain.hpc.udel.edu" ]] || [[ $CLUSTERNAME == "Darwin" ]]; then
-  echo "Submitting from Caviness or Darwin"
-  if [[ -d /opt/shared/gcc/10.1.0/ ]]; then
-    vpkg_require binutils/2.35.1:gcc-10.1.0
-    vpkg_require python/3.8.6
-    echo $(which gfortran)
-  else
+elif [[ $CLUSTERNAME == "Darwin" ]]; then
+  echo "Submitting from  Darwin"
+  vpkg_require binutils/2.35.1:gcc-10.1.0
+  vpkg_require python/3.8.6
+elif [[ $CLUSTERNAME == "Caviness" ]] ; then
+  echo "Submitting from Caviness"
     vpkg_require gcc/9.1
     vpkg_require binutils/2.33.1
     vpkg_require python/3.7.4
-  fi 
-  ONCAVINESS=1
 elif [[ $(hostname -d) == "icecube.wisc.edu" ]]; then
   echo "Submitting from Condor"
   ONCONDOR=1
@@ -60,6 +57,7 @@ echo "EXEDIR = $EXEDIR"
 echo "EXE = $EXE"
 echo "TEMPDIR = $TEMPDIR"
 echo "CORSIKA_ID = $CORSIKA_ID"
+echo "FLAGS = $FLAGS"
 
 #Don't make the same file if it already exists on the Madison cluster
 if [[ $FLAGS == *"--movetocondor"* ]]; then
@@ -107,9 +105,10 @@ fi
 cd $BASEDIR
 
 XMAX=$(grep "PARAMETERS  " $($QUERY_PY $FLAGS --dir longfile) | awk '{print $5}')
-echo "GH fit Xmax = $XMAX"
+ZENITH=$(grep "THETAP " $($QUERY_PY $FLAGS --dir inpfile) | awk '{print $2}')
+echo "GH fit Xmax = $XMAX and zenith = $ZENITH"
 
-if [[ $($QUERY_PY $FLAGS --xmaxBelow $XMAX) == 1 ]]; then
+if [[ $($QUERY_PY --xmaxBelow $XMAX $ZENITH) == 1 ]]; then
   echo ""
   echo ""
   echo "Xmax is below ground. Will resimulate using CONEX."
@@ -180,11 +179,12 @@ if [[ $FLAGS == *"--movetocondor"* ]]; then
     if [[ $ONCONDOR == 1 ]]; then
       echo "You are on Condor, moving directly"
 
-      if [[ ! -d $CONDORDIR ]]; then
-        mkdir -p $CONDORDIR
+      if [[ ! -d $CONDORDIR/${CORSIKA_ID} ]]; then
+        mkdir -p $CONDORDIR/${CORSIKA_ID}
       fi
 
-      rsync -auP $FINALDIR/. $CONDORDIR/ > /dev/null 2>&1
+      echo rsync -auP $FINALDIR $CONDORDIR/${CORSIKA_ID}/.
+      rsync -auP $FINALDIR $CONDORDIR/${CORSIKA_ID}/. > /dev/null 2>&1
       rm -r $FINALDIR
     else
       #Let the transfer cronjobs know that this file is complete

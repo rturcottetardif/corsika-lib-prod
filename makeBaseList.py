@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -7,6 +9,7 @@ import matplotlib.patches as mpatches
 import numpy as np
 from math import cos, sin, pi
 import pathlib
+from python_tools.CorsikaOptions import CorsikaOptions
 
 DrawScintHub = True
 DrawScint = True
@@ -23,6 +26,9 @@ magneticEast = -8.557
 magneticNorth = 14.399
 #Angle between IC coords and CORSIKA coords ~= 120.72 deg
 MagRotation = np.arctan2(magneticNorth, magneticEast)
+
+opts = CorsikaOptions()
+resrouceDir = str(pathlib.Path(__file__).parent.absolute())+"/resources"
 
 def qualitative_colors(n):
     if n < 1:
@@ -68,7 +74,7 @@ rot = np.array([[cos(rotangle), -1*sin(rotangle)], [sin(rotangle), cos(rotangle)
 ####Make the scintillator plots
 ########################################
 
-file = open(str(pathlib.Path(__file__).parent.absolute())+"/../resources/CoordinateScintillator.txt", "r")
+file = open(resrouceDir+"/CoordinateScintillator.txt", "r")
 
 NScintPerStation = 8
 NScintPerLocation = 2
@@ -118,7 +124,7 @@ file.close()
 ####Make the New antenna locations
 ########################################
 
-file = open(str(pathlib.Path(__file__).parent.absolute())+"/../resources/CoordinateScintillator.txt", "r")
+file = open(resrouceDir+"/CoordinateScintillator.txt", "r")
 
 stations = np.zeros(shape=(8,2))
 
@@ -154,7 +160,7 @@ for i in range(int(len(scintLoc) / NScintPerStation)):
 ########################################
 ####Make SD tank locations
 ########################################
-file = open (str(pathlib.Path(__file__).parent.absolute())+"/../resources/CoordinateSD.txt", "r")
+file = open (resrouceDir+"/CoordinateSD.txt", "r")
 
 sdx = np.array([])
 sdy = np.array([])
@@ -198,12 +204,12 @@ for line in file:
 
 fig = plt.figure()
 ax = fig.add_subplot(1,1,1)
-ax.grid(color='lightgrey', linewidth=1.2)
+# ax.grid(color='lightgrey', linewidth=1.2)
 
 icolor = 0
 
 if DrawIceTop:
-  ax.scatter(sdx, sdy, color=myColors[icolor], marker='.', label='IceTop', alpha=0.5)
+  ax.scatter(sdx, sdy, color=myColors[icolor], marker='.', label='IceTop Tank', alpha=0.5)
   icolor += 1
 
 ##The scintillators
@@ -265,7 +271,7 @@ if DrawCircle:
   circ5 = plt.Circle((0,0), radius=500, color='b', fill=False)
   ax.add_patch(circ5)
 
-ax.legend(framealpha=0.93)
+ax.legend(loc='upper left',framealpha=0.9, prop={'size': 9})
 
 if not InICCoords:
   ax.set_xlabel('Magnetic North [m]')
@@ -281,13 +287,13 @@ ax.set_title('Surface Upgrade Array Layout ('+whichCoords+")")
 ax.set_aspect('equal', adjustable='datalim')
 
 
-plt.savefig(str(pathlib.Path(__file__).parent.absolute())+"/../resources/ArrayPlot.pdf")
-print("Made file", str(pathlib.Path(__file__).parent.absolute())+"/../resources/ArrayPlot.pdf")
+plt.savefig(resrouceDir+"/ArrayPlot.pdf")
+print("Made file", resrouceDir+"/ArrayPlot.pdf")
 
 if not InICCoords:
-  file = open(str(pathlib.Path(__file__).parent.absolute())+"/../resources/BaseList.list", "w")
+  file = open(resrouceDir+"/BaseList.list", "w")
 
-file2 = open(str(pathlib.Path(__file__).parent.absolute())+"/../resources/AntennaLocations.txt", "w")
+file2 = open(resrouceDir+"/AntennaLocations.txt", "w")
 if InICCoords:
   file2.write("Antenna locations in IC Coordinates\n")
   file2.write("StnID, AntID, East [m], North [m], Altitude [m]\n")
@@ -302,12 +308,12 @@ for i in range(len(antx)):
   spokeID = int(i % NSpoke) + 100
 
   if not InICCoords:
-    file.write("AntennaPosition = {0:0.3f} \t{1:0.3f} \t{2} \tant_{3}_{4}\n".format(x, y, theVars.height, stationID, spokeID))
+    file.write("AntennaPosition = {0:0.3f} \t{1:0.3f} \t{2} \tant_{3}_{4}\n".format(x, y, opts.antennaHeight, stationID, spokeID))
 
-  file2.write("{0}\t{1}\t{2:0.3f}\t{3:0.3f}\t{4}\n".format(stationID, spokeID, x/1.e2, y/1.e2, theVars.height/1.e2)) 
+  file2.write("{0}\t{1}\t{2:0.3f}\t{3:0.3f}\t{4}\n".format(stationID, spokeID, x/1.e2, y/1.e2, opts.antennaHeight/1.e2)) 
 
 if not InICCoords:
   file.close()
-  print("Made file", str(pathlib.Path(__file__).parent.absolute())+"/../resources/BaseList.list")
+  print("Made file", resrouceDir+"/BaseList.list")
 file2.close()
-print("Made file", str(pathlib.Path(__file__).parent.absolute())+"/../resources/AntennaLocations.txt")
+print("Made file", resrouceDir+"/AntennaLocations.txt")

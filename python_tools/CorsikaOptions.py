@@ -154,14 +154,13 @@ class CorsikaOptions(object):
         b = eMin**(1 + self.energyIndex)
         self.shower.energy = (random.random() * (a - b) + b)**(1/(1+self.energyIndex)) * 1e-15
 
-  def XmaxBelowGround(self, xmax):
+  def XmaxBelowGround(self, xmax, zenith):
     xmax = float(xmax)
 
-    cos = np.cos(self.shower.zenith * np.pi / 180.)
+    cos = np.cos(zenith * np.pi / 180.)
     verticalDepth = xmax * cos
 
     if verticalDepth > 690. - 30. / cos: #If below the ground (with 30g tolerance)
-      # print("Is outside of 690 - {}".format(30. / cos))
       return 1
 
     return 0

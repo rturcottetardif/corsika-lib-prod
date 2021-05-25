@@ -10,22 +10,20 @@ import numpy as np
 import glob
 import os
 import subprocess
-from util import variables
+from python_tools import FileHandler
 import pathlib
 
 #####################################################
 
-ram = 8
-nQueue = 400
-prims = ["proton"]
+ram = 4
+startID = 200
+nQueue = 200
+prims = ["iron"]
 
-zens = [0, 17, 34, 51, 68]
-zens = [17]
+zens = [34, 51, 68]
 
 engs = np.arange(16.0, 17.0, 0.1)
-engs = np.arange(16.5, 16.9, 0.1)
-engs = [16.0, 16.1, 16.2, 16.3, 16.4, 16.5, 16.6, 16.7, 16.8, 16.9]
-engs = [16.5, 16.6, 16.7]
+engs = [16.0, 16.2, 16.4, 16.6, 16.8, 17.0, 17.2, 17.4, 17.6, 17.8, 18.0]
 
 baseDir = "/data/sim/IceCubeUpgrade/CosmicRay/Radio/coreas/data/discrete"
 
@@ -77,9 +75,7 @@ def GetCluster():
 
 
 
-vars = variables.Variables()
-
-
+handler = FileHandler.FileHandler()
 
 def MakeSubFile(directory):
 
@@ -112,11 +108,11 @@ def MakeSubFile(directory):
     if "asterix" == cluster:
       file.write("#SBATCH --partition=long\n")
 
-    file.write("{0}ProcessCtrl.sh ".format(vars.resourcedir))
+    file.write("{0}ProcessCtrl.sh ".format(handler.resourcedir))
     file.write(str(directory))
 
   elif "icecube" == cluster:
-    file.write("Executable = {0}ProcessCtrl.sh\n".format(vars.resourcedir))
+    file.write("Executable = {0}ProcessCtrl.sh\n".format(handler.resourcedir))
     file.write("Error = {0}i3.{1}_{2}_$(Process).out\n".format(logPath, eng, zen))
     file.write("Output = {0}i3.{1}_{2}_$(Process).out\n".format(logPath, eng, zen))
     file.write("Log = /scratch/acoleman/i3.{0}_{1}_$(Process).log\n".format(eng, zen))
@@ -124,7 +120,9 @@ def MakeSubFile(directory):
     file.write("request_memory = {}GB\n".format(ram))
     #file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
-    file.write("Arguments= {} $(Process)".format(directory))
+    file.write("StartIDOffset={0}\n".format(startID))
+    file.write("ID=$$([$(Process) + $(StartIDOffset)])\n\n\n")
+    file.write("Arguments= {} $(ID)\n".format(directory))
 
   file.write("\n")
 
