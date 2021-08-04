@@ -4,7 +4,6 @@ import os
 import subprocess
 import pathlib
 import numpy as np
-import pandas as pd
 from python_tools import FileHandler
 
 IdBegin = 0
@@ -69,6 +68,9 @@ class ShowerGroup(object):
             subprocess.call(["sbatch", "--partition=" +
                              str(group), "tempSubFile.submit"])
 
+        elif "horeka" == cluster:
+            subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
+
         elif "asterix" == cluster:
             subprocess.call(["sbatch", "tempSubFile.submit"])
 
@@ -115,14 +117,15 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
 
         if "caviness" == cluster:
             file.write("#SBATCH --export=NONE\n")
-        if "horeka" == cluster:
-            print("how to add the project ??")
-            #file.write("SBATCH --A=hk-project-pevradio\n")
 
         if UseParallel:
             file.write("#SBATCH --time=12:00:00\n")
             file.write("#SBATCH --tasks-per-node=6\n")
             file.write("#SBATCH --mem-per-cpu=2000\n")
+        elif "horeka" == cluster:
+            file.write("#SBATCH --time=3-00:00:00\n")
+            file.write("#SBATCH --tasks-per-node=1\n")
+            file.write("#SBATCH --mem-per-cpu=4096\n")
         else:
             file.write("#SBATCH --time=7-00:00:00\n")
             file.write("#SBATCH --tasks-per-node=1\n")
