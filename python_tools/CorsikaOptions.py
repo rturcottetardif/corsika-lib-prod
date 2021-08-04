@@ -9,7 +9,7 @@ class CorsikaOptions(object):
   """docstring for CorsikaOptions"""
   def __init__(self):
 
-    self.eventID = 0
+    self.eventID = 0   # CAREFUL ! this is simulation eventids and not IC events.
 
     self.antennaHeight = 2838.e2 #Altitude of the antennas
     self.obslev = 2840.e2 #Altitude of the CORSIKA OBSLEV

@@ -236,44 +236,60 @@ def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.pn
     print("Plotting the variables of the showers...")
     plt.savefig(handler.logfiledir + plotname)
 
-# THAT HAS TO BE CHANGED !! NO I3FILES allowed
-# def pickEvents(showerFile, wantedEvents):
-#     runIds, eventIds, zens, azis, energies = [], [], [], [], []
-#     in_file = dataio.I3File(showerFile, 'r')
-#     for frame in in_file:
-#         runId, eventId = i3var.getRunIdEventIdfromI3File(frame)
-#         if in_file.stream == I3Frame.DAQ:
-#             if [runId, eventId] in wantedEvents:
-#                 print("Got it! : {0}, {1}".format(runId, eventId))
-#                 runIds.append(runId)
-#                 eventIds.append(eventId)
-#                 zens.append(i3var.getIceTopZenith(frame) / I3Units.degree)
-#                 azis.append(aziI3ParticleToCoREAS(i3var.getIceTopAzimuth(frame)) / I3Units.degree)
-#                 energies.append(i3var.getIceTopEnergy(frame) / I3Units.PeV)
-#     return runIds, eventIds, zens, azis, energies
+
+def simulateWholeFile(filename, nShowers):
+    showerList = []
+    with open(filename, 'rb') as f:
+        try:
+            while 1:
+                event = np.load(f)
+                print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
+                writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+                showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+        except ValueError: #Sketchy fix
+            print("EoF : ", filename)
+        return showerList
 
 
-# def aziI3ParticleToCoREAS(azimuth):
-#     return (azimuth / I3Units.deg - radcube.GetMagneticRotation() / I3Units.deg + 180)*I3Units.deg
+def simulateOneEvent(filename, nShowers, runId, eventId):
+    showerList = []
+    with open(filename, 'rb') as f:
+        try:
+            while 1:
+                event = np.load(f)
+                if (str(event["runId"]) == runId) and (str(event["eventId"]) == eventId):
+                    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
+                    writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+                    showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+        except ValueError: #Sketchy fix
+            print("EoF : ", filename)
+        return showerList
 
 
-showerList = []
+# showerList = []
 
 if (__name__ == '__main__'):
     proton = 14
     iron = 5626
     nShowers = 1
 
+    ## RUN ALL SHOWERS IN THE FILE
+    filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
+    showerList = simulateWholeFile(filename, nShowers)
+    for shwr in showerList:
+        shwr.SubmitShowers()
+
+
+    ## TEST RUN
     runIds = 134244
     eventIds = 71221068
     zens = 30
     azis = 180
     energies = 0.180
-
-    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
-    #writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    nShowers = 1
     """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
     showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
+    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
     for shwr in showerList:
         shwr.SubmitShowers()
 
