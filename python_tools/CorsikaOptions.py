@@ -110,6 +110,8 @@ class CorsikaOptions(object):
       return 0
     if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy): #Discrete
       return 1
+    if self.realAtmos: # probably not the best variable to use...
+      return 2
 
     print("ALAN YOU SHOULD FIGURE OUT WHAT YOU WANT THIS TO DO!")
     exit()

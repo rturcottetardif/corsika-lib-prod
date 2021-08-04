@@ -101,43 +101,44 @@ class FileHandler(object):
 
     libType = self.corOpts.GetLibraryType()
 
-    if 0 == libType:
+    if 0 == libType:  # Continuous library
       subDir += "continuous/"
       if self.corOpts.useStar:
         subDir += "star-pattern/"
       else:
         subDir += "array-2020/"
-    if 1 == libType:
-      if not self.corOpts.fastShowers:
-        subDir += "completeSimulation/"
-        if self.corOpts.useStar:
-          subDir += "star-pattern/"
-        elif not self.corOpts.useStar:
-          subDir += "array-2020/"
-      elif self.corOpts.fastShowers:
-        subDir += "fastShowers/"
-        if self.corOpts.useStar:
-          subDir += "star-pattern/"
-        elif not self.corOpts.useStar:
-          subDir += "array-2020/"
 
+    if 1 == libType:  # Discrete library
+      subDir += "discrete/"
 
-    # subDir += self.corOpts.GetPrimaryName() + "/"
+    if 2 == libType:  # Measured Showers
+      if self.corOpts.useStar:
+        subDir += "star-pattern/"
+        if not self.corOpts.fastShowers:
+          subDir += "coreas/"
+        elif self.corOpts.fastShowers:
+          subDir += "conex/"
+      elif not self.corOpts.useStar:
+        subDir += "array-2020/"
+        if not self.corOpts.fastShowers:
+          subDir += "coreas/"
+        elif self.corOpts.fastShowers:
+          subDir += "conex/"
 
     if 0 == libType: ##Continuous
+      subDir += self.corOpts.GetPrimaryName() + "/"
       subDir += "lgE_{0:0.1f}/".format(self.corOpts.minLgE)
       subDir += "sin2_{0:0.1f}/".format(self.corOpts.minSin2)
     elif 1 == libType: ##Discrete
-      # prettyEnergy = np.log10(self.corOpts.shower.energy) + 15
-      # subDir += "lgE_{0:0.1f}/".format(prettyEnergy)
-      # subDir += "Zen_{0:0.0f}/".format(self.corOpts.shower.zenith)
-
+      subDir += self.corOpts.GetPrimaryName() + "/"
+      prettyEnergy = np.log10(self.corOpts.shower.energy) + 15
+      subDir += "lgE_{0:0.1f}/".format(prettyEnergy)
+      subDir += "Zen_{0:0.0f}/".format(self.corOpts.shower.zenith)
+    elif 2 == libType: ##Measured
       subDir += "runID_{0}_eventID_{1}/".format(self.runID, self.eventID)
-
-    subDir += self.corOpts.GetPrimaryName() + "/"
+      subDir += self.corOpts.GetPrimaryName() + "/"
 
     return subDir
-
 
 
   def GetHeadDir(self):
