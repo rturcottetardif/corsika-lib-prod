@@ -108,9 +108,9 @@ class CorsikaOptions(object):
   def GetLibraryType(self):
     if self.useRandZen and self.useRandEnergy: #Continuous
       return 0
-    if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy): #Discrete
+    if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy) and (not self.realAtmos): #Discrete
       return 1
-    if self.realAtmos: # probably not the best variable to use...
+    if self.realAtmos: # Temporary fix. Will use eventID in future
       return 2
 
     print("ALAN YOU SHOULD FIGURE OUT WHAT YOU WANT THIS TO DO!")
