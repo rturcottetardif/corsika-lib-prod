@@ -46,10 +46,24 @@ def getShowerIdentification(frame):
     return runID, eventID, unixTime
 
 
+def runForNpy(filename):
+    with open(filename, 'rb') as f:
+        try:
+            while 1:
+                event = np.load(f)
+                runGDAS(event["runId"], event["eventId"], event["time"])
+        except ValueError: #Sketchy fix
+            print("EoF : ", filename)
+
+
 def runAllGDASforOneFile(filename):
-    in_file = dataio.I3File(filename, 'r')
-    for frame in in_file:
-        runId, eventId, unixTime = getShowerIdentification(frame)
+    if filename.split(".")[-1] == ".i3.gz":
+        in_file = dataio.I3File(filename, 'r')
+        for frame in in_file:
+            runId, eventId, unixTime = getShowerIdentification(frame)
+            runGDAS(runId, eventId, unixTime)
+    elif filename.split(".")[-1] == ".npy":
+        runId, eventId, unixTime = runForNpy(filename)
         runGDAS(runId, eventId, unixTime)
 
 
@@ -58,7 +72,8 @@ if __name__ == '__main__':
     path = "/data/user/rturcotte/showers/"
     filename_clear = "showersV4_20210217_clear.i3.gz"
     filename_coinc = "showersV4_coinc_20210217.i3.gz"
-    runAllGDASforOneFile(path + filename_coinc)
+    filenameNPY =
+    runAllGDASforOneFile(filenameNPY)
 
 
 
