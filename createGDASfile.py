@@ -1,19 +1,16 @@
 #!/usr/bin/python3
 
 import numpy as np
-from icecube import dataclasses, dataio
-from icecube.dataclasses import I3Time
 import subprocess
-# from . import FileHandler
+from python_tools import FileHandler
 
-# # that doesn't work!!! importation problem
-# handler = FileHandler.FileHandler()
-atmosDir = "/data/user/rturcotte/corsika-library-production/atmosphere"
+handler = FileHandler.FileHandler()
+# atmosDir = "/data/user/rturcotte/corsika-library-production/atmosphere"
 
 
 def isFileExists(runID, eventID):
     import os.path
-    filename = atmosDir + "/atmos_runId{0}_eventId{1}.txt".format(runID, eventID)
+    filename = handler.atmosdir + "/atmos_runId{0}_eventId{1}.txt".format(runID, eventID)
     if os.path.isfile(filename):
         return True
     else:
@@ -21,8 +18,7 @@ def isFileExists(runID, eventID):
 
 
 def createEmptyGDASFile(runID, eventID):
-    f = open(atmosDir + "/atmos_runId{0}_eventId{1}.txt".format(runID, eventID), "w+")
-    # f = open(handler.atmosdir + "atmos_runId{0}_eventId{1}.txt".format(runID, eventID))
+    f = open(handler.atmosdir + "/atmos_runId{0}_eventId{1}.txt".format(runID, eventID), "w+")
     return f.name
 
 
@@ -33,13 +29,10 @@ def runGDAS(runID, eventID, unixTime):
         filename = createEmptyGDASFile(runID, eventID)
         unixTime = str(unixTime)
         print(runID, eventID, unixTime)
-        print(filename)
-        subprocess.run(["python", "/data/user/rturcotte/corsika/corsika-77401/src/utils/gdastool", "--observatory", "icetop", "-o", filename, "-t", unixTime])
+        subprocess.run(["python", handler.corsikadir[:-4] + "/src/utils/gdastool", "--observatory", "icetop", "-o", filename, "-t", unixTime])
 
 
 def getShowerIdentification(frame):
-    # in_file = dataio.I3File(filename, 'r')
-    # for frame in in_file:
     runID = frame['I3EventHeader'].run_id
     eventID = frame['I3EventHeader'].event_id
     unixTime = frame['TaxiTime'].unix_time
@@ -52,27 +45,25 @@ def runForNpy(filename):
             while 1:
                 event = np.load(f)
                 runGDAS(event["runId"], event["eventId"], event["time"])
-        except ValueError: #Sketchy fix
+        except ValueError:     #Sketchy fix
             print("EoF : ", filename)
 
 
 def runAllGDASforOneFile(filename):
-    if filename.split(".")[-1] == ".i3.gz":
+    print("making GDAS file for all events in :", filename)
+    if ".i3.gz" in filename:
+        from icecube import dataio
         in_file = dataio.I3File(filename, 'r')
         for frame in in_file:
             runId, eventId, unixTime = getShowerIdentification(frame)
             runGDAS(runId, eventId, unixTime)
-    elif filename.split(".")[-1] == ".npy":
+    elif ".npy" in filename:
         runId, eventId, unixTime = runForNpy(filename)
         runGDAS(runId, eventId, unixTime)
 
 
 if __name__ == '__main__':
-    #getShowerIdentification("/data/user/rturcotte/showers/showers_12112020.i3.gz")
-    path = "/data/user/rturcotte/showers/"
-    filename_clear = "showersV4_20210217_clear.i3.gz"
-    filename_coinc = "showersV4_coinc_20210217.i3.gz"
-    filenameNPY =
+    filenameNPY = handler.basedir + "/resources/exampleShowerlist.npy"
     runAllGDASforOneFile(filenameNPY)
 
 
