@@ -6,16 +6,16 @@ import pathlib
 import numpy as np
 import pandas as pd
 from python_tools import FileHandler
-from icecube import dataio, radcube
-from icecube.icetray import I3Frame, I3Units
 
 IdBegin = 0
-UseParallel = False
+
 UseStar = True
-# Todo : put the shower core in the Not Star simulation
-SendToCondor = False
+# Always use real atmosphere for measured shower ! otherwise it will break the folders
 UseRealAtmos = True
 FastShowers = True
+
+SendToCondor = False
+UseParallel = False
 
 handler = FileHandler.FileHandler()
 
@@ -33,6 +33,8 @@ def GetCluster():
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.STDOUT).communicate()
 
+    if "hkn1993" in str(stdout):
+        return "horeka"
     if "asterix" in str(stdout):
         return "asterix"
     elif "login" in str(stdout):
@@ -150,7 +152,11 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
         else:
             file.write("Universe = vanilla\n")
             file.write("request_memory = 2GB\n")
-            #file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+            if UseStar and not FastShowers:
+                file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+
+    elif "horeka" == cluster:
+        print("ROX ! figure out how to call it on horeka")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -228,9 +234,9 @@ def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.pn
     ax.set_xlabel("shower")
     ax.set_ylabel("energy [PeV]")
     print("Plotting the variables of the showers...")
-    plt.savefig("/data/user/rturcotte/corsika_simulation/plot/" + plotname)
+    plt.savefig(handler.logfiledir + plotname)
 
-
+# THAT HAS TO BE CHANGED !! NO I3FILES allowed
 def pickEvents(showerFile, wantedEvents):
     runIds, eventIds, zens, azis, energies = [], [], [], [], []
     in_file = dataio.I3File(showerFile, 'r')
@@ -265,6 +271,7 @@ if (__name__ == '__main__'):
     nShowers = 100
 
     """ COINCIDENT SHOWERS """
+    # TAKE A .NPY FILE !!!
     showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
     events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
 
