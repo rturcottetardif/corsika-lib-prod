@@ -71,6 +71,9 @@ class ShowerGroup(object):
         elif "horeka" == cluster:
             subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
 
+        elif "horeka" == cluster:
+            subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
+
         elif "asterix" == cluster:
             subprocess.call(["sbatch", "tempSubFile.submit"])
 
@@ -122,6 +125,10 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
             file.write("#SBATCH --time=12:00:00\n")
             file.write("#SBATCH --tasks-per-node=6\n")
             file.write("#SBATCH --mem-per-cpu=2000\n")
+        elif "horeka" == cluster:
+            file.write("#SBATCH --time=3-00:00:00\n")
+            file.write("#SBATCH --tasks-per-node=1\n")
+            file.write("#SBATCH --mem-per-cpu=4096\n")
         else:
             file.write("#SBATCH --time=7-00:00:00\n")
             file.write("#SBATCH --tasks-per-node=1\n")
