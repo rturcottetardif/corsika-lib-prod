@@ -15,7 +15,7 @@ UseStar = True
 # Todo : put the shower core in the Not Star simulation
 SendToCondor = False
 UseRealAtmos = True
-FastShowers = True
+FastShowers = False
 
 handler = FileHandler.FileHandler()
 
@@ -262,22 +262,23 @@ if (__name__ == '__main__'):
 
     proton = 14
     iron = 5626
-    nShowers = 100
+    nShowers = 50
 
     """ COINCIDENT SHOWERS """
-    showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
-    events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
+    # showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
+    # events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
 
     """ CLEAR CASCADED SHOWERS """
-    # showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
-    # events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
+    showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
+    events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
 
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    for i in range(len(runIds)):
-        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
-        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton], nShowers)
-        """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-        showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton], nShowers)
+    # for i in range(len(runIds)):
+    i = 3
+    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
+    writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
     for shwr in showerList:
         shwr.SubmitShowers()
     # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")

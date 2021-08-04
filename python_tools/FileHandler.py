@@ -109,7 +109,7 @@ class FileHandler(object):
         subDir += "array-2020/"
     if 1 == libType:
       if not self.corOpts.fastShowers:
-        subDir += "realEvents/"
+        subDir += "completeSimulation/"
         if self.corOpts.useStar:
           subDir += "star-pattern/"
         elif not self.corOpts.useStar:
