@@ -106,7 +106,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
     pathlib.Path(logPath).mkdir(parents=True, exist_ok=True)
 
     cluster = GetCluster()
-    if "caviness" == cluster or "asterix" == cluster:
+    if "caviness" == cluster or "asterix" == cluster or "horeka" == cluster:
 
         file.write(
             "#SBATCH --job-name={0:0.0f}_{1:0.1f}\n".format(zen, np.log10(eng) + 15))
@@ -115,6 +115,9 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
 
         if "caviness" == cluster:
             file.write("#SBATCH --export=NONE\n")
+        if "horeka" == cluster:
+            print("how to add the project ??")
+            #file.write("SBATCH --A=hk-project-pevradio\n")
 
         if UseParallel:
             file.write("#SBATCH --time=12:00:00\n")
@@ -154,9 +157,6 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
             file.write("request_memory = 2GB\n")
             if UseStar and not FastShowers:
                 file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
-
-    elif "horeka" == cluster:
-        print("ROX ! figure out how to call it on horeka")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -237,70 +237,45 @@ def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.pn
     plt.savefig(handler.logfiledir + plotname)
 
 # THAT HAS TO BE CHANGED !! NO I3FILES allowed
-def pickEvents(showerFile, wantedEvents):
-    runIds, eventIds, zens, azis, energies = [], [], [], [], []
-    in_file = dataio.I3File(showerFile, 'r')
-    for frame in in_file:
-        runId, eventId = i3var.getRunIdEventIdfromI3File(frame)
-        if in_file.stream == I3Frame.DAQ:
-            if [runId, eventId] in wantedEvents:
-                print("Got it! : {0}, {1}".format(runId, eventId))
-                runIds.append(runId)
-                eventIds.append(eventId)
-                zens.append(i3var.getIceTopZenith(frame) / I3Units.degree)
-                azis.append(aziI3ParticleToCoREAS(i3var.getIceTopAzimuth(frame)) / I3Units.degree)
-                energies.append(i3var.getIceTopEnergy(frame) / I3Units.PeV)
-    return runIds, eventIds, zens, azis, energies
+# def pickEvents(showerFile, wantedEvents):
+#     runIds, eventIds, zens, azis, energies = [], [], [], [], []
+#     in_file = dataio.I3File(showerFile, 'r')
+#     for frame in in_file:
+#         runId, eventId = i3var.getRunIdEventIdfromI3File(frame)
+#         if in_file.stream == I3Frame.DAQ:
+#             if [runId, eventId] in wantedEvents:
+#                 print("Got it! : {0}, {1}".format(runId, eventId))
+#                 runIds.append(runId)
+#                 eventIds.append(eventId)
+#                 zens.append(i3var.getIceTopZenith(frame) / I3Units.degree)
+#                 azis.append(aziI3ParticleToCoREAS(i3var.getIceTopAzimuth(frame)) / I3Units.degree)
+#                 energies.append(i3var.getIceTopEnergy(frame) / I3Units.PeV)
+#     return runIds, eventIds, zens, azis, energies
 
 
-def aziI3ParticleToCoREAS(azimuth):
-    return (azimuth / I3Units.deg - radcube.GetMagneticRotation() / I3Units.deg + 180)*I3Units.deg
+# def aziI3ParticleToCoREAS(azimuth):
+#     return (azimuth / I3Units.deg - radcube.GetMagneticRotation() / I3Units.deg + 180)*I3Units.deg
 
 
 showerList = []
 
 if (__name__ == '__main__'):
-    import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "showerEnergy", "/home/rturcotte/work/scripts/showerEnergy/utils/extractI3Variables.py")
-    i3var = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(i3var)
-
     proton = 14
     iron = 5626
-    nShowers = 100
+    nShowers = 1
 
-    """ COINCIDENT SHOWERS """
-    # TAKE A .NPY FILE !!!
-    showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
-    events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
+    runIds = 134244
+    eventIds = 71221068
+    zens = 30
+    azis = 180
+    energies = 0.180
 
-    """ CLEAR CASCADED SHOWERS """
-    # showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
-    # events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
-
-    runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    for i in range(len(runIds)):
-        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
-        writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton], nShowers)
-        """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-        showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton], nShowers)
+    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+    #writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
     for shwr in showerList:
         shwr.SubmitShowers()
-    # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
 
 
 
-    # ONE CONEX SHOWER with different energy
-    # nShowers = 300
-    # runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    # # for i in range(len(runIds)):
-    # #     print(i, runIds[i])
-    # writeLog(runIds[1], eventIds[1], zens[1], azis[1], energies[1], [proton], nShowers)
-
-    # """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    # showerList += ShowerString(runIds[1], eventIds[1], zens[1], azis[1], energies[1], [proton], nShowers)
-
-    # for i, shwr in enumerate(showerList):
-    #     # IdBegin = i*nShowers
-    #     shwr.SubmitShowers()
