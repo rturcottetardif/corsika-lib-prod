@@ -130,9 +130,11 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
                 if "asterix" == cluster:
                     file.write("#SBATCH --partition=long\n")
 
-        if "horeka" == cluster:
+        elif "horeka" == cluster:
             file.write("#SBATCH --constraint=LSDF\n")
             if UseParallel:
+                # DOESN'T WORK YET... To be fix
+                #  CoREAS: Error reading parameter file anynameupto239characters/SIM000000.reas!
                 file.write("#SBATCH --time=12:00:00\n")
                 file.write("#SBATCH --tasks-per-node=6\n")
                 #file.write("#SBATCH --mem-per-cpu=2000\n")
@@ -141,7 +143,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
                 file.write("#SBATCH --tasks-per-node=1\n")
                 #file.write("#SBATCH --mem-per-cpu=1600\n")
 
-        #file.write("#SBATCH --array=0-{0}\n".format(int(n - 1)))
+        file.write("#SBATCH --array=0-{0}\n".format(int(n - 1)))
         file.write("\nSTARTID={0}\n".format(id))
         file.write("ARRAYID=$SLURM_ARRAY_TASK_ID\n")
         file.write("ID=$(($STARTID + $ARRAYID))\n\n")
@@ -277,14 +279,14 @@ def simulateOneEvent(filename, nShowers, runId, eventId):
         return showerList
 
 
-# showerList = []
+showerList = []
 
 if (__name__ == '__main__'):
     proton = 14
     iron = 5626
     nShowers = 1
 
-    ## RUN ALL SHOWERS IN THE FILE
+    # RUN ALL SHOWERS IN THE FILE
     # filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
     # showerList = simulateWholeFile(filename, nShowers)
     # for shwr in showerList:
