@@ -67,7 +67,3 @@ if __name__ == '__main__':
     runAllGDASforOneFile(filenameNPY)
 
 
-
-
-
-

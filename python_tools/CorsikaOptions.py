@@ -3,6 +3,7 @@
 import numpy as np
 from . import ShowerVariables
 
+
 CORSIKAOPT_NOT_SET=-999
 
 class CorsikaOptions(object):
