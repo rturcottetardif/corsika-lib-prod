@@ -213,7 +213,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
 # Some sanity checks and logs...
 def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
     from datetime import date
-    filename = "/data/user/rturcotte/corsika-library-production/log/simulated_showers.txt"
+    filename = handler.logfiledir + "/simulated_showers.txt"
     log = open(filename, "a")
     log.write("=============================================== \n")
     log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
@@ -284,27 +284,28 @@ showerList = []
 if (__name__ == '__main__'):
     proton = 14
     iron = 5626
-    nShowers = 1
+    nShowers = 50
 
     # RUN ALL SHOWERS IN THE FILE
-    # filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
-    # showerList = simulateWholeFile(filename, nShowers)
-    # for shwr in showerList:
-    #     shwr.SubmitShowers()
+    filename = handler.basedir + "/resources/exampleShowerlist.npy"
+    showerList = simulateWholeFile(filename, nShowers)
+    for shwr in showerList:
+        shwr.SubmitShowers()
 
 
     ## TEST RUN
-    runIds = 134625
-    eventIds = 31078935
-    zens = 30
-    azis = 180
-    energies = 0.180
-    nShowers = 1
-    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
-    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
-    for shwr in showerList:
-        shwr.SubmitShowers()
+    # Careful : REAL ID, must be deleted after. 
+#    runIds = 134625
+#    eventIds = 31078935
+#    zens = 30
+#    azis = 180
+#    energies = 0.180
+#    nShowers = 1
+#    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+#    showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
+#    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+#    for shwr in showerList:
+#        shwr.SubmitShowers()
 
 
 
