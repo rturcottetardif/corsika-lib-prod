@@ -32,7 +32,7 @@ def GetCluster():
                                       stdout=subprocess.PIPE,
                                       stderr=subprocess.STDOUT).communicate()
 
-    if "hkn1993" in str(stdout):
+    if "hkn" in str(stdout):
         return "horeka"
     if "asterix" in str(stdout):
         return "asterix"
@@ -66,7 +66,10 @@ class ShowerGroup(object):
             print("Submitting on workgroup", group)
 
             subprocess.call(["sbatch", "--partition=" +
-                             str(group), "tempSubFile.submit"])
+                            str(group), "tempSubFile.submit"])
+
+        elif "horeka" == cluster:
+            subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
 
         elif "horeka" == cluster:
             subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
@@ -125,7 +128,8 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
         elif "horeka" == cluster:
             file.write("#SBATCH --time=3-00:00:00\n")
             file.write("#SBATCH --tasks-per-node=1\n")
-            file.write("#SBATCH --mem-per-cpu=4096\n")
+            file.write("#SBATCH --constraint=LSDF\n")
+            file.write("#SBATCH --mem-per-cpu=1600\n")
         else:
             file.write("#SBATCH --time=7-00:00:00\n")
             file.write("#SBATCH --tasks-per-node=1\n")
@@ -219,27 +223,6 @@ def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
     print("Writing a log file in ... {0}".format(filename))
 
 
-def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.png"):
-    import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
-    runIds, eventIds, zens, azis, energies = pickEvents(showerFile, wantedEvents)
-    fig = plt.figure(figsize=[8, 10])
-    gs = gridspec.GridSpec(2, 1, wspace=0.3, hspace=0.2)
-
-    # one day, invert the zenith axis
-    ax = fig.add_subplot(gs[0], polar=True)
-    ax.scatter(azis, zens, c="indigo")
-    ax.set_xlabel("azimuth")
-    ax.set_ylabel("zenith")
-
-    ax = fig.add_subplot(gs[1], polar=False)
-    ax.scatter(np.arange(0, len(energies)), energies, c="indigo")
-    ax.set_xlabel("shower")
-    ax.set_ylabel("energy [PeV]")
-    print("Plotting the variables of the showers...")
-    plt.savefig(handler.logfiledir + plotname)
-
-
 def simulateWholeFile(filename, nShowers):
     showerList = []
     with open(filename, 'rb') as f:
@@ -269,7 +252,7 @@ def simulateOneEvent(filename, nShowers, runId, eventId):
         return showerList
 
 
-# showerList = []
+showerList = []
 
 if (__name__ == '__main__'):
     proton = 14
@@ -277,10 +260,10 @@ if (__name__ == '__main__'):
     nShowers = 1
 
     ## RUN ALL SHOWERS IN THE FILE
-    filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
-    showerList = simulateWholeFile(filename, nShowers)
-    for shwr in showerList:
-        shwr.SubmitShowers()
+#    filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
+#    showerList = simulateWholeFile(filename, nShowers)
+#    for shwr in showerList:
+#        shwr.SubmitShowers()
 
 
     ## TEST RUN

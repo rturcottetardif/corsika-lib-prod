@@ -1,10 +1,10 @@
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import matplotlib.patches as mpatches
+#import matplotlib
+#matplotlib.use('Agg')
+#import matplotlib.pyplot as plt
+#import matplotlib.gridspec as gridspec
+#import matplotlib.patches as mpatches
 
-import matplotlib.cm as cm
+#import matplotlib.cm as cm
 
 import numpy as np
 
@@ -153,19 +153,19 @@ class StarGenerator(object):
   def GetAntennaList(self):
     return self.antennaList
 
-  def PlotAntennaList(self):
-    fig = plt.figure()
-    ax = fig.add_subplot(1,1,1)
+#  def PlotAntennaList(self):
+#    fig = plt.figure()
+#    ax = fig.add_subplot(1,1,1)
 
 
-    colors = cm.rainbow(np.linspace(0, 1, len(self.antennaList)))
+#    colors = cm.rainbow(np.linspace(0, 1, len(self.antennaList)))
 
-    ax.scatter(np.array(self.antennaList)[:,0], np.array(self.antennaList)[:,1], color=colors)
-    ax.set_aspect('equal')
-    ax.set_xlabel("Grid East [m]")
-    ax.set_ylabel("Grid North [m]")
+#    ax.scatter(np.array(self.antennaList)[:,0], np.array(self.antennaList)[:,1], color=colors)
+#    ax.set_aspect('equal')
+#    ax.set_xlabel("Grid East [m]")
+#    ax.set_ylabel("Grid North [m]")
 
-    fig.savefig("StarPattern.pdf")
+#    fig.savefig("StarPattern.pdf")
 
   def MakeListFile(self, filename):
     file = open(filename, "w")
