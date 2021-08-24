@@ -150,7 +150,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
         else:
             file.write("Universe = vanilla\n")
             file.write("request_memory = 2GB\n")
-            #file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+            file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -265,23 +265,23 @@ if (__name__ == '__main__'):
     nShowers = 50
 
     """ COINCIDENT SHOWERS """
-    # showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
-    # events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
+    showerFile = "/data/user/rturcotte/showers/showersV4_coinc_20210217.i3.gz"
+    events = np.array(pd.read_csv('/data/user/rturcotte/showers/coincEvents.txt', header=None, comment="#", sep=" "))
 
     """ CLEAR CASCADED SHOWERS """
-    showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
-    events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
+   # showerFile = "/data/user/rturcotte/showers/showersV4_clear_20210217.i3.gz"
+   # events = np.array(pd.read_csv('/data/user/rturcotte/showers/clearEvents.txt', header=None, comment="#", sep=" "))
 
     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, events)
-    # for i in range(len(runIds)):
-    i = 3
-    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
-    writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
-    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    for i in range(len(runIds)):
+    #i = 3
+    	print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds[i], eventIds[i], zens[i], azis[i]-60, energies[i]))
+    	writeLog(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
+    	"""showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    	showerList += ShowerString(runIds[i], eventIds[i], zens[i], azis[i], energies[i], [proton, iron], nShowers)
     for shwr in showerList:
         shwr.SubmitShowers()
-    # plotSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
+    # pltSimulatedShowersProperties(showerFile, coincEvents, plotname="coincEvent.png")
 
 
 

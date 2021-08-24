@@ -11,7 +11,7 @@ IdBegin = 0
 UseStar = True
 # Always use real atmosphere for measured shower ! otherwise it will break the folders
 UseRealAtmos = True
-FastShowers = True
+#FastShowers = True
 
 SendToCondor = False
 UseParallel = False
@@ -282,29 +282,45 @@ def simulateOneEvent(filename, nShowers, runId, eventId):
 showerList = []
 
 if (__name__ == '__main__'):
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
+                        help='List of CoREAS simulation directories')
+    parser.add_argument('--batch', type=int, default=1, help='batch number')
+    parser.add_argument('--nshowers', type=int, default=50, help='number of simulation of each type')
+    parser.add_argument('--conex', type=bool, default=True, help='fast simulations')
+    parser.add_argument('--test', type=bool, default=False, help='just for testing')
+    args = parser.parse_args()
+
+    FastShowers = args.conex
     proton = 14
     iron = 5626
-    nShowers = 1
+    nShowers = 50
 
-    # RUN ALL SHOWERS IN THE FILE
-    # filename = "/data/user/rturcotte/corsika-library-production/resources/exampleShowerlist.npy"
-    # showerList = simulateWholeFile(filename, nShowers)
-    # for shwr in showerList:
-    #     shwr.SubmitShowers()
+    if not args.test:
+        # RUN ALL SHOWERS IN THE FILE
+        showerList = simulateWholeFile(args.input, nShowers)
+        ## BATCHES of 6
+        batch = args.batch # starts at 1
+        for i, shwr in enumerate(showerList):
+            shwr.SubmitShowers()
 
 
-    ## TEST RUN
-    runIds = 134625
-    eventIds = 31078935
-    zens = 30
-    azis = 180
-    energies = 0.180
-    nShowers = 1
-    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
-    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
-    for shwr in showerList:
-        shwr.SubmitShowers()
+    # =======================
+    ## TEST RUN - FIX ATMOS FOR REAL SHOWERS!
+    if args.test:
+        runIds = 134625
+        eventIds = 31078935
+        zens = 30
+        azis = 180
+        energies = 0.180
+        nShowers = 1
+        """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+        showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
+        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+
+        for shwr in enumerate(showerList):
+                shwr.SubmitShowers()
 
 
 
