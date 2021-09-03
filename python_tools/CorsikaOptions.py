@@ -122,7 +122,9 @@ class CorsikaOptions(object):
     '''Will randomize the core, energy, dir, as needed
     the seed is set using the string so that there is reapeatablility'''
     import random
-    random.seed("{}{}{}{}{}{}{}".format(self.eventID, self.minSin2, self.minLgE, self.minAzi, self.shower.zenith, self.shower.azimuth, self.shower.energy))
+    random.seed("{}{}{}{}{}{}{}{}".format(self.eventID, self.minSin2, self.minLgE, self.minAzi, self.shower.zenith,
+                self.shower.azimuth, self.shower.energy, self.shower.primary))
+
     self.seed = random.randint(0, 1e8)
     print("Random seed:", self.seed)
 

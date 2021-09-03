@@ -213,7 +213,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
 # Some sanity checks and logs...
 def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
     from datetime import date
-    filename = "/data/user/rturcotte/corsika-library-production/log/simulated_showers.txt"
+    filename = handler.logfiledir + "/simulated_showers.txt"
     log = open(filename, "a")
     log.write("=============================================== \n")
     log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
@@ -321,6 +321,5 @@ if (__name__ == '__main__'):
 
         for shwr in enumerate(showerList):
                 shwr.SubmitShowers()
-
 
 
