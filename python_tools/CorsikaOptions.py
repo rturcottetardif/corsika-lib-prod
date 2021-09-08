@@ -74,6 +74,9 @@ class CorsikaOptions(object):
     parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
     parser.add_argument('--fastShowers', action='store_true', help='use CONEX in fast simulation')
 
+    parser.add_argument('--runID', action='store_true', help='if there, it is a real measurement')
+
+
     args, unknown = parser.parse_known_args()
 
     if (args.minSin2 != self.minSin2) != (args.maxSin2 != self.maxSin2):
@@ -111,7 +114,7 @@ class CorsikaOptions(object):
       return 0
     if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy) and (not self.realAtmos): #Discrete
       return 1
-    if self.realAtmos: # Temporary fix. Will use eventID in future
+    if self.runID:
       return 2
 
     print("ALAN YOU SHOULD FIGURE OUT WHAT YOU WANT THIS TO DO!")
@@ -133,9 +136,14 @@ class CorsikaOptions(object):
       phi = np.pi * 2 * random.random()
       self.shower.coreX = r * np.cos(phi)
       self.shower.coreY = r * np.sin(phi)
-    else:
+    if self.useStar:
       self.shower.coreX = 0.
       self.shower.coreY = 0.
+    else:
+      self.shower.coreX = getCore()
+      self.shower.coreY = getCore()
+
+
 
     if self.useRandZen:
       sin2 = (self.maxSin2 - self.minSin2) * random.random() + self.minSin2
