@@ -23,11 +23,14 @@ class CorsikaOptions(object):
     self.rotationAngle = np.arctan2(self.magneticNorth, self.magneticEast)
 
     self.useStar = False
+    self.proto = False
 
     self.thinning = False
     self.realAtmos = False
     self.fastShowers = False
     self.parallel = False
+
+    self.isRunID = False
 
     self.minAzi = 0.0
     self.maxAzi = 360.0
@@ -59,7 +62,11 @@ class CorsikaOptions(object):
     parser.add_argument('--id', type=int, default=0, required=False)
     parser.add_argument('--thin', action='store_true', help='Thin the particle files')
     parser.add_argument('--parallel', action='store_true', help='Simulate over multiple cores')
+
     parser.add_argument('--usestar', action='store_true', help='Use the starshaped pattern')
+    parser.add_argument('--proto', action='store_true', help='Use the prototype station configuration')
+    parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
+    parser.add_argument('--fastShowers', action='store_true', help='use CONEX in fast simulation')
 
     parser.add_argument('--minSin2', type=float, default=self.minSin2)
     parser.add_argument('--maxSin2', type=float, default=self.maxSin2)
@@ -69,10 +76,7 @@ class CorsikaOptions(object):
     parser.add_argument('--minLgE', type=float, default=self.minLgE)
     parser.add_argument('--dE', type=float, default=self.dE, help='Width of energy bin in lg(E/eV)')
     parser.add_argument('--energyIndex', type=float, default=self.energyIndex)
-
     parser.add_argument('--randRadius', type=float, default=self.randRadius)
-    parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
-    parser.add_argument('--fastShowers', action='store_true', help='use CONEX in fast simulation')
 
     parser.add_argument('--runID', action='store_true', help='if there, it is a real measurement')
 
@@ -88,6 +92,8 @@ class CorsikaOptions(object):
     self.useStar = args.usestar
     self.realAtmos = args.realAtmosphere
     self.fastShowers = args.fastShowers
+    self.proto = args.proto
+    self.isRunID = args.runID
 
     self.useRandAzi = args.randazi
 
@@ -112,13 +118,13 @@ class CorsikaOptions(object):
   def GetLibraryType(self):
     if self.useRandZen and self.useRandEnergy: #Continuous
       return 0
-    if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy) and (not self.realAtmos): #Discrete
+    if (not self.useRandAzi) and (not self.useRandZen) and (not self.useRandEnergy) and (not self.isRunID): #Discrete
       return 1
-    if self.runID:
+    if self.isRunID:
       return 2
-
-    print("ALAN YOU SHOULD FIGURE OUT WHAT YOU WANT THIS TO DO!")
-    exit()
+    else:
+      log_fatal("Your library type is not clear...")
+      exit()
 
 
   def RandomizeShower(self):
@@ -140,9 +146,7 @@ class CorsikaOptions(object):
       self.shower.coreX = 0.
       self.shower.coreY = 0.
     else:
-      self.shower.coreX = getCore()
-      self.shower.coreY = getCore()
-
+      print("Core from reconstruction at {0}, {1}".format(self.shower.coreX, self.shower.coreY))
 
 
     if self.useRandZen:

@@ -112,18 +112,27 @@ class FileHandler(object):
       subDir += "discrete/"
 
     if 2 == libType:  # Measured Showers
-      if self.corOpts.useStar:
+      if self.corOpts.useStar and not self.corOpts.proto:
         subDir += "star-pattern/"
         if not self.corOpts.fastShowers:
           subDir += "coreas/"
         elif self.corOpts.fastShowers:
           subDir += "conex/"
-      elif not self.corOpts.useStar:
+      elif (not self.corOpts.useStar) and self.corOpts.proto:
         subDir += "array-2020/"
         if not self.corOpts.fastShowers:
           subDir += "coreas/"
         elif self.corOpts.fastShowers:
           subDir += "conex/"
+      elif not (self.corOpts.useStar and self.corOpts.proto):
+        subDir += "complete-array/"
+        if not self.corOpts.fastShowers:
+          subDir += "coreas/"
+        elif self.corOpts.fastShowers:
+          subDir += "conex/"
+      elif self.corOpts.useStar and self.corOpts.proto:
+        print("you cannot use star pattern with prototype station !")
+        exit()
 
     if 0 == libType: ##Continuous
       subDir += self.corOpts.GetPrimaryName() + "/"

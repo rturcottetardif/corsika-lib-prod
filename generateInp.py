@@ -161,7 +161,10 @@ file2.close()
 
 
 #########################Creating .list file#####################################
-baseListName = handler.GetResourceDir() + "/BaseList.list"
+if handler.corOpts.proto:
+  baseListName = handler.GetResourceDir() + "/BaseList_prototype.list"
+else:
+  baseListName = handler.GetResourceDir() + "/BaseList.list"
 whereToPlace = handler.GetListFileName()
 print("Making .list file...")
 print("Filename:", whereToPlace)

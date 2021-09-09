@@ -8,10 +8,11 @@ from python_tools import FileHandler
 
 IdBegin = 0
 
-UseStar = True
-# Always use real atmosphere for measured shower ! otherwise it will break the folders
+#### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
+UseStar = False
+UsePrototype = True
 UseRealAtmos = True
-#FastShowers = True
+FastShowers = True
 
 SendToCondor = False
 UseParallel = False
@@ -46,19 +47,54 @@ def GetCluster():
 class ShowerGroup(object):
     """docstring for ShowerGroup"""
 
-    def __init__(self, runID, eventID, zen, azi, eng, prim, n):
+    def __init__(self, filename, runID, eventID, prim, n):
         self.runID = runID
         self.eventID = eventID
-        self.zenith = zen
-        self.energy = eng  # [PeV]
-        self.azimuth = azi
+        self.filename = filename
+        self.zenith = 0
+        self.azimuth = 0
+        self.energy = 0  # [PeV]
+        self.coreX = 0
+        self.coreY = 0
         self.primary = prim
         self.nShowers = n
 
+        self.getShowerInfo()
+
+    def getShowerInfo(self):
+        event = np.array((0, 0), dtype=([('runId', np.int), ('eventId', np.int)]))
+        with open(self.filename, 'rb') as f:
+            while not (event['runId'] == self.runID and event['eventId'] == self.eventID):
+                try:
+                    event = np.load(f)
+                except ValueError:
+                    print("The runId {0}, eventId {1} was not found !".format(self.runID, self.eventID))
+                    exit()
+
+        self.zenith = event["zenith"]       # [Deg]
+        self.azimuth = event["azimuth"]     # [Deg]
+        self.energy = event["energy"]       # [PeV]
+        self.coreX = event["coreX_Ant"]     # [cm]
+        self.coreY = event["coreY_Ant"]     # [cm]
+
+        print(self.runID,
+        self.eventID,
+        self.filename,
+        self.zenith,
+        self.azimuth,
+        self.energy,
+        self.coreX,
+        self.coreY,
+        self.primary,
+        self.nShowers)
+
     def SubmitShowers(self):
 
-        MakeSubFile(self.runID, self.eventID, self.zenith, self.azimuth,
-                    self.energy, self.primary, self.nShowers, IdBegin)
+        MakeSubFile(self.runID, self.eventID,
+                    self.zenith, self.azimuth,
+                    self.energy, self.coreX,
+                    self.coreX, self.primary,
+                    self.nShowers, IdBegin)
 
         cluster = GetCluster()
         if "caviness" == cluster:
@@ -81,10 +117,10 @@ class ShowerGroup(object):
         # subprocess.call(["rm", "tempSubFile.submit"])
 
 
-def ShowerString(runID, eventID, zen, azi, eng, prims, n):
+def ShowerString(filename, runID, eventID, prims, n):
     tempList = []
     for prim in prims:
-        shwr = ShowerGroup(runID, eventID, zen, azi, eng, prim, n)
+        shwr = ShowerGroup(filename, runID, eventID, prim, n)
         tempList.append(shwr)
     return tempList
 
@@ -93,10 +129,9 @@ def DoThin(peV, zenith):
     return True
 
 
-def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
+def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 
     print("Making subfile begining with id", IdBegin)
-    print("Zen {0}, Eng {1}, azi {2}".format(zen, eng, azi))
     print("runID {0}, eventID {1}".format(runID, eventID))
 
     file = open("tempSubFile.submit", "w")
@@ -175,11 +210,15 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
 
     if UseStar:
         file.write("--usestar ")
+    if UsePrototype:
+        file.write("--proto ")
 
     file.write("--zenith {0} ".format(zen))
     file.write("--energy {0} ".format(eng))
     file.write("--primary {0} ".format(prim))
     file.write("--azimuth {0} ".format(azi))
+    file.write("--coreX {0} ".format(coreX))
+    file.write("--coreY {0} ".format(coreY))
 
     file.write("--runID {0} ".format(runID))
     file.write("--eventID {0} ".format(eventID))
@@ -210,116 +249,130 @@ def MakeSubFile(runID, eventID, zen, azi, eng, prim, n, id):  # modify here
     file.close()
 
 
-# Some sanity checks and logs...
-def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
-    from datetime import date
-    filename = handler.logfiledir + "/simulated_showers.txt"
-    log = open(filename, "a")
-    log.write("=============================================== \n")
-    log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
-    log.write("{0} \n".format(date.today()))
-    log.write("runId {0}, eventId {1} \n".format(runId, eventId))
-    log.write("Zenith  : {0}  in deg\n".format(zenith))
-    log.write("CoREAS Azi : {0} in deg\n".format(azimuth))
-    log.write("Energy  : {0} in PeV\n".format(energy))
-    log.write("Primaries : {0}  \n".format(primaries))
-    log.write("nShowers: {0}  \n".format(nShowers))
-    log.write("=============================================== \n")
-    log.close()
-    print("Writing a log file in ... {0}".format(filename))
+# # Some sanity checks and logs...
+# def writeLog(runId, eventId, zenith, azimuth, energy, primaries, nShowers):
+#     from datetime import date
+#     filename = handler.logfiledir + "/simulated_showers.txt"
+#     log = open(filename, "a")
+#     log.write("=============================================== \n")
+#     log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
+#     log.write("{0} \n".format(date.today()))
+#     log.write("runId {0}, eventId {1} \n".format(runId, eventId))
+#     log.write("Zenith  : {0}  in deg\n".format(zenith))
+#     log.write("CoREAS Azi : {0} in deg\n".format(azimuth))
+#     log.write("Energy  : {0} in PeV\n".format(energy))
+#     log.write("Primaries : {0}  \n".format(primaries))
+#     log.write("nShowers: {0}  \n".format(nShowers))
+#     log.write("=============================================== \n")
+#     log.close()
+#     print("Writing a log file in ... {0}".format(filename))
 
 
-def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.png"):
-    import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
-    runIds, eventIds, zens, azis, energies = pickEvents(showerFile, wantedEvents)
-    fig = plt.figure(figsize=[8, 10])
-    gs = gridspec.GridSpec(2, 1, wspace=0.3, hspace=0.2)
+# def plotSimulatedShowersProperties(showerFile, wantedEvents, plotname="events.png"):
+#     import matplotlib.pyplot as plt
+#     import matplotlib.gridspec as gridspec
+#     runIds, eventIds, zens, azis, energies = pickEvents(showerFile, wantedEvents)
+#     fig = plt.figure(figsize=[8, 10])
+#     gs = gridspec.GridSpec(2, 1, wspace=0.3, hspace=0.2)
 
-    # one day, invert the zenith axis
-    ax = fig.add_subplot(gs[0], polar=True)
-    ax.scatter(azis, zens, c="indigo")
-    ax.set_xlabel("azimuth")
-    ax.set_ylabel("zenith")
+#     # one day, invert the zenith axis
+#     ax = fig.add_subplot(gs[0], polar=True)
+#     ax.scatter(azis, zens, c="indigo")
+#     ax.set_xlabel("azimuth")
+#     ax.set_ylabel("zenith")
 
-    ax = fig.add_subplot(gs[1], polar=False)
-    ax.scatter(np.arange(0, len(energies)), energies, c="indigo")
-    ax.set_xlabel("shower")
-    ax.set_ylabel("energy [PeV]")
-    print("Plotting the variables of the showers...")
-    plt.savefig(handler.logfiledir + plotname)
-
-
-def simulateWholeFile(filename, nShowers):
-    showerList = []
-    with open(filename, 'rb') as f:
-        try:
-            while 1:
-                event = np.load(f)
-                print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
-                writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-                showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-        except ValueError: #Sketchy fix
-            print("EoF : ", filename)
-        return showerList
+#     ax = fig.add_subplot(gs[1], polar=False)
+#     ax.scatter(np.arange(0, len(energies)), energies, c="indigo")
+#     ax.set_xlabel("shower")
+#     ax.set_ylabel("energy [PeV]")
+#     print("Plotting the variables of the showers...")
+#     plt.savefig(handler.logfiledir + plotname)
 
 
-def simulateOneEvent(filename, nShowers, runId, eventId):
-    showerList = []
-    with open(filename, 'rb') as f:
-        try:
-            while 1:
-                event = np.load(f)
-                if (str(event["runId"]) == runId) and (str(event["eventId"]) == eventId):
-                    print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
-                    writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-                    showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-        except ValueError: #Sketchy fix
-            print("EoF : ", filename)
-        return showerList
+# def simulateWholeFile(filename, nShowers):
+#     showerList = []
+#     with open(filename, 'rb') as f:
+#         try:
+#             while 1:
+#                 event = np.load(f)
+#                 print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
+#                 writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+#                 showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+#         except ValueError: #Sketchy fix
+#             print("EoF : ", filename)
+#         return showerList
+
+
+# def simulateOneEvent(filename, nShowers, runId, eventId):
+#     showerList = []
+#     with open(filename, 'rb') as f:
+#         try:
+#             while 1:
+#                 event = np.load(f)
+#                 if (str(event["runId"]) == runId) and (str(event["eventId"]) == eventId):
+#                     print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
+#                     writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+#                     showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
+#         except ValueError: #Sketchy fix
+#             print("EoF : ", filename)
+#         return showerList
 
 
 showerList = []
 
 if (__name__ == '__main__'):
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
-                        help='List of CoREAS simulation directories')
-    parser.add_argument('--batch', type=int, default=1, help='batch number')
-    parser.add_argument('--nshowers', type=int, default=50, help='number of simulation of each type')
-    parser.add_argument('--conex', type=bool, default=True, help='fast simulations')
-    parser.add_argument('--test', type=bool, default=False, help='just for testing')
-    args = parser.parse_args()
-
-    FastShowers = args.conex
     proton = 14
     iron = 5626
-    nShowers = 50
+    filename = handler.basedir + "/resources/exampleShowerlist.npy"
+    runIds = 134739
+    eventIds = 8585668
+    UseRealAtmos = False
+    nShowers = 1
+    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    showerList += ShowerString(filename, runIds, eventIds, [proton, iron], nShowers)
+    for i, shwr in enumerate(showerList):
+        shwr.SubmitShowers()
 
-    if not args.test:
-        # RUN ALL SHOWERS IN THE FILE
-        showerList = simulateWholeFile(args.input, nShowers)
-        ## BATCHES of 6
-        batch = args.batch # starts at 1
-        for i, shwr in enumerate(showerList):
-            shwr.SubmitShowers()
 
 
-    # =======================
-    ## TEST RUN - FIX ATMOS FOR REAL SHOWERS!
-    if args.test:
-        runIds = 134625
-        eventIds = 31078935
-        zens = 30
-        azis = 180
-        energies = 0.180
-        nShowers = 1
-        """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-        showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
-        print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
+    #                     help='List of CoREAS simulation directories')
+    # parser.add_argument('--batch', type=int, default=1, help='batch number')
+    # parser.add_argument('--nshowers', type=int, default=50, help='number of simulation of each type')
+    # parser.add_argument('--conex', type=bool, default=True, help='fast simulations')
+    # parser.add_argument('--test', type=bool, default=False, help='just for testing')
+    # args = parser.parse_args()
 
-        for shwr in enumerate(showerList):
-                shwr.SubmitShowers()
+    # FastShowers = args.conex
+    # proton = 14
+    # iron = 5626
+    # nShowers = 50
+
+    # if not args.test:
+    #     # RUN ALL SHOWERS IN THE FILE
+    #     showerList = simulateWholeFile(args.input, nShowers)
+    #     ## BATCHES of 6
+    #     batch = args.batch # starts at 1
+    #     for i, shwr in enumerate(showerList):
+    #         shwr.SubmitShowers()
+
+
+    # # =======================
+    # ## TEST RUN - FIX ATMOS FOR REAL SHOWERS!
+    # if args.test:
+    #     runIds = 123456
+    #     eventIds = 987654
+    #     UseRealAtmos = False
+    #     zens = 30
+    #     azis = 180
+    #     energies = 0.180
+    #     nShowers = 1
+    #     """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    #     showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
+    #     print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+
+    #     for shwr in enumerate(showerList):
+    #             shwr.SubmitShowers()
 
 

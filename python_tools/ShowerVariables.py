@@ -39,12 +39,16 @@ class ShowerVariables(object):
     parser.add_argument('-e', '--energy', type=float, default=self.energy, help='Energy in PeV')
     parser.add_argument('-z', '--zenith', type=float, default=self.zenith, help='Zenith angle in degrees')
     parser.add_argument('-a', '--azimuth', type=float, default=self.azimuth, help='Azimuth angle in degrees')
+    parser.add_argument('-cx', '--coreX', type=float, default=self.coreX, help='core x in cm')
+    parser.add_argument('-cy', '--coreY', type=float, default=self.coreY, help='core y in cm')
     args, unknown = parser.parse_known_args()
 
     self.primary = args.primary
     self.energy = args.energy
     self.zenith = args.zenith
     self.azimuth = args.azimuth
+    self.coreX = args.coreX
+    self.coreY = args.coreY
 
   def PrintShowerVariables(self):
     print("-----Shower Variables-----")
