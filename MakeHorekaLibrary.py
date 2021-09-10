@@ -6,11 +6,11 @@ import pathlib
 import numpy as np
 from python_tools import FileHandler
 
-IdBegin = 0
+#IdBegin = 0
 
 #### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
-UseStar = False
-UsePrototype = True
+UseStar = True
+UsePrototype = False
 UseRealAtmos = True
 FastShowers = True
 
@@ -146,6 +146,7 @@ def ShowerString(filename, runID, eventID, prims, n, **kwargs):
             print("Changing energy from {0} to {1}".format(shwr.energy, kwargs['energy']))
             shwr.setEnergy(kwargs['energy'])
         tempList.append(shwr)
+        print("idebing", IdBegin)
     return tempList
 
 
@@ -316,32 +317,6 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 showerList = []
 
 if (__name__ == '__main__'):
-    proton = 14
-    iron = 5626
-    filename = handler.basedir + "/resources/exampleShowerlist.npy"
-    runId = 134739
-    eventId = 8585668
-    UseRealAtmos = False
-    nShowers = 1
-
-
-    with open(self.filename, 'rb') as f:
-        while not (event['runId'] == runId and event['eventId'] == eventId):
-            try:
-                event = np.load(f)
-            except ValueError:
-                print("The runId {0}, eventId {1} was not found !".format(runId, eventId))
-                exit()
-
-    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers)
-    showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=250)
-    # showerList.printShowerInfo()
-    # for i, shwr in enumerate(showerList):
-    #     shwr.SubmitShowers()
-
-
-
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
     #                     help='List of CoREAS simulation directories')
@@ -351,35 +326,36 @@ if (__name__ == '__main__'):
     # parser.add_argument('--test', type=bool, default=False, help='just for testing')
     # args = parser.parse_args()
 
-    # FastShowers = args.conex
-    # proton = 14
-    # iron = 5626
-    # nShowers = 50
-
-    # if not args.test:
-    #     # RUN ALL SHOWERS IN THE FILE
-    #     showerList = simulateWholeFile(args.input, nShowers)
-    #     ## BATCHES of 6
-    #     batch = args.batch # starts at 1
-    #     for i, shwr in enumerate(showerList):
-    #         shwr.SubmitShowers()
+    IdBegin = 0
+    proton = 14
+    iron = 5626
+    filename = handler.basedir + "/resources/exampleShowerlist.npy"
+    runId = 134739
+    eventId = 8585668
+    UseRealAtmos = False
+    nShowers = 10
 
 
-    # # =======================
-    # ## TEST RUN - FIX ATMOS FOR REAL SHOWERS!
-    # if args.test:
-    #     runIds = 123456
-    #     eventIds = 987654
-    #     UseRealAtmos = False
-    #     zens = 30
-    #     azis = 180
-    #     energies = 0.180
-    #     nShowers = 1
-    #     """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    #     showerList += ShowerString(runIds, eventIds, zens, azis, energies, [proton, iron], nShowers)
-    #     print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(runIds, eventIds, zens, azis-60, energies))
+    with open(filename, 'rb') as f:
+        event = np.array((0, 0), dtype=([('runId', np.int), ('eventId', np.int)]))
+        while not (event['runId'] == runId and event['eventId'] == eventId):
+            try:
+                event = np.load(f)
+            except ValueError:
+                print("The runId {0}, eventId {1} was not found !".format(runId, eventId))
+                exit()
+        energy = event['energy']
 
-    #     for shwr in enumerate(showerList):
-    #             shwr.SubmitShowers()
+    energy_array = np.linspace(energy/2, 2*energy, 10)
+
+    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    for i, ener in enumerate(energy_array):
+        IdBegin = nShowers*i
+        showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=ener)
+    # for i, shwr in enumerate(showerList):
+    #     shwr.SubmitShowers()
+
+
+
 
 
