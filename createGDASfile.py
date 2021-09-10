@@ -63,7 +63,13 @@ def runAllGDASforOneFile(filename):
 
 
 if __name__ == '__main__':
-    filenameNPY = handler.basedir + "/resources/exampleShowerlist.npy"
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
+                        help='.npy file with shower parameters')
+    args = parser.parse_args()
+
+    filenameNPY = args.input
     runAllGDASforOneFile(filenameNPY)
 
 
