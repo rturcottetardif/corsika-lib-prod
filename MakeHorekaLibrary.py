@@ -77,16 +77,28 @@ class ShowerGroup(object):
         self.coreX = event["coreX_Ant"]     # [cm]
         self.coreY = event["coreY_Ant"]     # [cm]
 
-        print(self.runID,
-        self.eventID,
-        self.filename,
-        self.zenith,
-        self.azimuth,
-        self.energy,
-        self.coreX,
-        self.coreY,
-        self.primary,
-        self.nShowers)
+    ##Allows the manual modification of parameters
+    def setEnergy(self, energy):
+        self.energy = energy
+
+    def setCore(self, core):
+        self.coreX = core[0]
+        self.coreY = core[1]
+
+    def setZenith(self, zen):
+        self.zenith = zen
+
+    def setAzimuth(self, azi):
+        self.azimuth = azi
+
+    def printShowerInfo(self):
+        print("{0} \n runID {1}, eventID {2}, zen {3}, azi {4}, ener {5}, core {6} {7}, prim {8}, n {9} ".format(
+              self.filename,
+              self.runID, self.eventID,
+              self.zenith, self.azimuth,
+              self.energy,
+              self.coreX, self.coreY,
+              self.primary, self.nShowers))
 
     def SubmitShowers(self):
 
@@ -117,10 +129,22 @@ class ShowerGroup(object):
         # subprocess.call(["rm", "tempSubFile.submit"])
 
 
-def ShowerString(filename, runID, eventID, prims, n):
+def ShowerString(filename, runID, eventID, prims, n, **kwargs):
     tempList = []
     for prim in prims:
         shwr = ShowerGroup(filename, runID, eventID, prim, n)
+        if 'zenith' in kwargs.keys():
+            print("Changing zenith from {0} to {1}".format(shwr.zenith, kwargs['zenith']))
+            shwr.setZenith(kwargs['zenith'])
+        if 'azimuth' in kwargs.keys():
+            print("Changing azimuth from {0} to {1}".format(shwr.azimuth, kwargs['azimuth']))
+            shwr.setAzimuth(kwargs['azimuth'])
+        if 'core' in kwargs.keys():
+            print("Changing core from [{0}, {1}] to {2}".format(shwr.coreX, shwr.coreY, kwargs['core']))
+            shwr.setCore(kwargs['core'])
+        if 'energy' in kwargs.keys():
+            print("Changing energy from {0} to {1}".format(shwr.energy, kwargs['energy']))
+            shwr.setEnergy(kwargs['energy'])
         tempList.append(shwr)
     return tempList
 
@@ -289,49 +313,32 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 #     plt.savefig(handler.logfiledir + plotname)
 
 
-# def simulateWholeFile(filename, nShowers):
-#     showerList = []
-#     with open(filename, 'rb') as f:
-#         try:
-#             while 1:
-#                 event = np.load(f)
-#                 print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
-#                 writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-#                 showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-#         except ValueError: #Sketchy fix
-#             print("EoF : ", filename)
-#         return showerList
-
-
-# def simulateOneEvent(filename, nShowers, runId, eventId):
-#     showerList = []
-#     with open(filename, 'rb') as f:
-#         try:
-#             while 1:
-#                 event = np.load(f)
-#                 if (str(event["runId"]) == runId) and (str(event["eventId"]) == eventId):
-#                     print("runId {0} eventId {1} zen {2} azi {3} energy {4}".format(event["runId"], event["eventId"], event["zenith"], event["azimuth"]-60, event["energy"]))
-#                     writeLog(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-#                     showerList += ShowerString(event["runId"], event["eventId"], event["zenith"], event["azimuth"], event["energy"], [proton, iron], nShowers)
-#         except ValueError: #Sketchy fix
-#             print("EoF : ", filename)
-#         return showerList
-
-
 showerList = []
 
 if (__name__ == '__main__'):
     proton = 14
     iron = 5626
     filename = handler.basedir + "/resources/exampleShowerlist.npy"
-    runIds = 134739
-    eventIds = 8585668
+    runId = 134739
+    eventId = 8585668
     UseRealAtmos = False
     nShowers = 1
+
+
+    with open(self.filename, 'rb') as f:
+        while not (event['runId'] == runId and event['eventId'] == eventId):
+            try:
+                event = np.load(f)
+            except ValueError:
+                print("The runId {0}, eventId {1} was not found !".format(runId, eventId))
+                exit()
+
     """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    showerList += ShowerString(filename, runIds, eventIds, [proton, iron], nShowers)
-    for i, shwr in enumerate(showerList):
-        shwr.SubmitShowers()
+    showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers)
+    showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=250)
+    # showerList.printShowerInfo()
+    # for i, shwr in enumerate(showerList):
+    #     shwr.SubmitShowers()
 
 
 
