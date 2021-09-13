@@ -31,6 +31,6 @@ for ikey, antkey in enumerate(antennaMap.keys()):
     posY = posIC.y
     posZ = I3Constants.OriginElev + posIC.z + antennaMap[antkey].heightAboveSnow
 
-    file.write("AntennaPosition = {0}    {1:.3f} {2:.3f} {3:.1f}\n".format(antNo, posX/I3Units.cm, posY/I3Units.cm, posZ/I3Units.cm, antNo))
+    file.write("AntennaPosition = {1:.3f}	{2:.3f}	{3:.1f}	{0}\n".format(antNo, posX/I3Units.cm, posY/I3Units.cm, posZ/I3Units.cm, antNo))
 file.close()
 print("I finished making the antenna list")

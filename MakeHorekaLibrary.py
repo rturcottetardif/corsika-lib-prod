@@ -9,8 +9,8 @@ from python_tools import FileHandler
 #IdBegin = 0
 
 #### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
-UseStar = True
-UsePrototype = False
+UseStar = False
+UsePrototype = True
 UseRealAtmos = True
 FastShowers = True
 
@@ -146,7 +146,7 @@ def ShowerString(filename, runID, eventID, prims, n, **kwargs):
             print("Changing energy from {0} to {1}".format(shwr.energy, kwargs['energy']))
             shwr.setEnergy(kwargs['energy'])
         tempList.append(shwr)
-        print("idebing", IdBegin)
+        print("idBegin", IdBegin)
     return tempList
 
 
@@ -332,26 +332,45 @@ if (__name__ == '__main__'):
     filename = handler.basedir + "/resources/exampleShowerlist.npy"
     runId = 134739
     eventId = 8585668
-    UseRealAtmos = False
-    nShowers = 10
+    nShowers = 20
 
+    ## SIMULATING ONE EVENT
+    # """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
+    # showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers)
+    # for i, shwr in enumerate(showerList):
+    #     shwr.SubmitShowers()
 
+    ## SIMULATING A WHOLE FILE
     with open(filename, 'rb') as f:
-        event = np.array((0, 0), dtype=([('runId', np.int), ('eventId', np.int)]))
-        while not (event['runId'] == runId and event['eventId'] == eventId):
+        next = True
+        while next:
             try:
                 event = np.load(f)
+                """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
+                showerList += ShowerString(filename, event["runId"], event["eventId"], [proton, iron], nShowers)
             except ValueError:
-                print("The runId {0}, eventId {1} was not found !".format(runId, eventId))
+                for i, shwr in enumerate(showerList):
+                    shwr.SubmitShowers()
+                next = False
                 exit()
-        energy = event['energy']
 
-    energy_array = np.linspace(energy/2, 2*energy, 10)
 
-    """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    for i, ener in enumerate(energy_array):
-        IdBegin = nShowers*i
-        showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=ener)
+    # VARYING THE ENERGY
+    # with open(filename, 'rb') as f:
+    #     event = np.array((0, 0), dtype=([('runId', np.int), ('eventId', np.int)]))
+    #     while not (event['runId'] == runId and event['eventId'] == eventId):
+    #         try:
+    #             event = np.load(f)
+    #         except ValueError:
+    #             print("The runId {0}, eventId {1} was not found !".format(runId, eventId))
+    #             exit()
+    #     energy = event['energy']
+
+    # energy_array = np.linspace(energy/2, 2*energy, 10)
+
+    # """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
+    # for i, ener in enumerate(energy_array):
+    #     showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=ener)
     # for i, shwr in enumerate(showerList):
     #     shwr.SubmitShowers()
 

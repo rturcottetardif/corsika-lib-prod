@@ -6,12 +6,13 @@ class ShowerVariables(object):
   """docstring for ShowerVariables"""
   def __init__(self):
 
-    self.zenith = 0
-    self.azimuth = 0
-    self.energy = 0.001
-    self.primary = 14  #1-gamma, 14-proton, 5626-Iron
-    self.coreX = 0.e2
-    self.coreY = 0.e2
+    self.zenith = 0         # in deg
+    self.azimuth = 0        # in deg
+    self.energy = 0.001     # in PeV
+    self.primary = 14       #1-gamma, 14-proton, 5626-Iron
+    self.coreX = 0.e2       # in m
+    self.coreY = 0.e2       # in m
+    # self.heightCore = 0.e2  # in m
 
   def SetCore(self, x, y):
     self.coreX = x
@@ -20,7 +21,6 @@ class ShowerVariables(object):
   def SetDirection(self, zen, azi):
     self.azimuth = azi
     self.zenith = zen
-
 
   def GetPrimaryName(self):
     if self.primary == 14:
@@ -39,8 +39,8 @@ class ShowerVariables(object):
     parser.add_argument('-e', '--energy', type=float, default=self.energy, help='Energy in PeV')
     parser.add_argument('-z', '--zenith', type=float, default=self.zenith, help='Zenith angle in degrees')
     parser.add_argument('-a', '--azimuth', type=float, default=self.azimuth, help='Azimuth angle in degrees')
-    parser.add_argument('-cx', '--coreX', type=float, default=self.coreX, help='core x in cm')
-    parser.add_argument('-cy', '--coreY', type=float, default=self.coreY, help='core y in cm')
+    parser.add_argument('-cx', '--coreX', type=float, default=self.coreX, help='core x in m')
+    parser.add_argument('-cy', '--coreY', type=float, default=self.coreY, help='core y in m')
     args, unknown = parser.parse_known_args()
 
     self.primary = args.primary
