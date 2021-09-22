@@ -5,6 +5,7 @@ import subprocess
 import pathlib
 import numpy as np
 from python_tools import FileHandler
+import time
 
 #IdBegin = 0
 
@@ -12,7 +13,7 @@ from python_tools import FileHandler
 UseStar = False
 UsePrototype = True
 UseRealAtmos = True
-FastShowers = True
+FastShowers = False
 
 SendToCondor = False
 UseParallel = False
@@ -117,7 +118,14 @@ class ShowerGroup(object):
                              str(group), "tempSubFile.submit"])
 
         elif "horeka" == cluster:
-            subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
+            submit = True
+            while submit:
+                results = subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
+                if results:
+                    time.wait(5*60)
+                    submit = True
+                else:
+                    submit = False
 
         elif "asterix" == cluster:
             subprocess.call(["sbatch", "tempSubFile.submit"])
@@ -353,6 +361,7 @@ if (__name__ == '__main__'):
                     shwr.SubmitShowers()
                 next = False
                 exit()
+
 
 
     # VARYING THE ENERGY
