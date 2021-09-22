@@ -122,7 +122,8 @@ class ShowerGroup(object):
             while submit:
                 results = subprocess.call(["sbatch", "--partition=cpuonly", "-A", "hk-project-pevradio", "tempSubFile.submit"])
                 if results:
-                    time.wait(5*60)
+                    print("... I'm waiting 5 minutes before trying again")
+                    time.sleep(5*60)
                     submit = True
                 else:
                     submit = False
