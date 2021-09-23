@@ -10,10 +10,11 @@ import time
 #IdBegin = 0
 
 #### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
-UseStar = False
-UsePrototype = True
+UseStar = True
+UsePrototype = False
 UseRealAtmos = True
-FastShowers = False
+UseCONEX = True
+
 
 SendToCondor = False
 UseParallel = False
@@ -155,7 +156,6 @@ def ShowerString(filename, runID, eventID, prims, n, **kwargs):
             print("Changing energy from {0} to {1}".format(shwr.energy, kwargs['energy']))
             shwr.setEnergy(kwargs['energy'])
         tempList.append(shwr)
-        print("idBegin", IdBegin)
     return tempList
 
 
@@ -237,7 +237,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
         else:
             file.write("Universe = vanilla\n")
             file.write("request_memory = 2GB\n")
-            if UseStar and not FastShowers:
+            if UseStar and not UseCONEX:
                 file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
         file.write("Arguments= --id $(ID) ")
@@ -273,7 +273,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
     if UseRealAtmos:
         file.write("--realAtmosphere ")
 
-    if FastShowers:
+    if UseCONEX:
         file.write("--fastShowers")
     file.write("\n")
 
@@ -289,7 +289,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 #     filename = handler.logfiledir + "/simulated_showers.txt"
 #     log = open(filename, "a")
 #     log.write("=============================================== \n")
-#     log.write("star : {0}, fast : {1} \n".format(UseStar, FastShowers))
+#     log.write("star : {0}, fast : {1} \n".format(UseStar, useCONEX))
 #     log.write("{0} \n".format(date.today()))
 #     log.write("runId {0}, eventId {1} \n".format(runId, eventId))
 #     log.write("Zenith  : {0}  in deg\n".format(zenith))
@@ -323,33 +323,19 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 #     plt.savefig(handler.logfiledir + plotname)
 
 
-showerList = []
+# showerList = []
+def printSettings():
+    print("I will use the star pattern ...", UseStar)
+    print("I will use the prototype station layout ...", UsePrototype)
+    print("I will use the real atmosphere...", UseRealAtmos)
+    print("I will use the CONEX option...", UseCONEX)
+    print("I start the simulation at ", IdBegin)
+    print("I simulate {0} showers of proton and {0} of iron".format(nShowers))
 
-if (__name__ == '__main__'):
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
-    #                     help='List of CoREAS simulation directories')
-    # parser.add_argument('--batch', type=int, default=1, help='batch number')
-    # parser.add_argument('--nshowers', type=int, default=50, help='number of simulation of each type')
-    # parser.add_argument('--conex', type=bool, default=True, help='fast simulations')
-    # parser.add_argument('--test', type=bool, default=False, help='just for testing')
-    # args = parser.parse_args()
 
-    IdBegin = 0
-    proton = 14
-    iron = 5626
-    filename = handler.basedir + "/resources/exampleShowerlist.npy"
-    runId = 134739
-    eventId = 8585668
-    nShowers = 20
-
-    ## SIMULATING ONE EVENT
-    # """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
-    # showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers)
-    # for i, shwr in enumerate(showerList):
-    #     shwr.SubmitShowers()
-
-    ## SIMULATING A WHOLE FILE
+def simulateOneFile(filename):
+    printSettings()
+    showerList = []
     with open(filename, 'rb') as f:
         next = True
         while next:
@@ -364,6 +350,60 @@ if (__name__ == '__main__'):
                 exit()
 
 
+if (__name__ == '__main__'):
+    #IdBegin = 0
+    proton = 14
+    iron = 5626
+    #filename = handler.basedir + "/resources/exampleShowerlist.npy"
+    #runId = 134739
+    #eventId = 8585668
+    #nShowers = 20
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
+                        help='List of CoREAS simulation directories')
+    parser.add_argument('-n', '--nShowers', type=int, default=20,
+                        help='number of simulation of proton and iron')
+    parser.add_argument('--no-conex', dest='noConex', action='store_false',
+                        help='The simulation will use the standard coreas')
+    parser.add_argument('--no-atmos', dest='noAtmos', action='store_false',
+                        help='The simulation will use the standard aatmosphere')
+    parser.add_argument('--id', type=int, default=0,
+                        help='The starting number of the simulations')
+    parser.add_argument('-p', '--prototype', dest='proto', action='store_true',
+                        help='Will simulate on protytpe station layou')
+    parser.add_argument('--test', dest='test', action='store_true',
+                        help='just for testing')
+    args = parser.parse_args()
+
+    print(args.input)
+    IdBegin = args.id
+    nShowers = args.nShowers
+    UseCONEX = args.noConex
+    UseStar = not args.proto
+    UsePrototype = args.proto
+    UseRealAtmos = args.noAtmos
+
+    # ======================
+    ## EXAMPLE : SIMULATING ONE EVENT
+    if args.test:
+    # if you use the test option be careful to remove that simulation afterwards
+        IdBegin = 0
+        proton = 14
+        iron = 5626
+        runId = 134739
+        eventId = 8585668
+        nShowers = 2
+        showerList = []
+        """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
+        showerList += ShowerString(args.input, runId, eventId, [proton, iron], nShowers)
+        for i, shwr in enumerate(showerList):
+            shwr.SubmitShowers()
+        # ======================
+
+    simulateOneFile(args.input)
+    #printSettings()
+
 
     # VARYING THE ENERGY
     # with open(filename, 'rb') as f:
@@ -377,12 +417,6 @@ if (__name__ == '__main__'):
     #     energy = event['energy']
 
     # energy_array = np.linspace(energy/2, 2*energy, 10)
-
-    # """showerList += ShowerString(runID, eventID, Zenith Angle deg, Azimuth Angle deg, Energie PeV, [Primaries])"""
-    # for i, ener in enumerate(energy_array):
-    #     showerList += ShowerString(filename, runId, eventId, [proton, iron], nShowers, energy=ener)
-    # for i, shwr in enumerate(showerList):
-    #     shwr.SubmitShowers()
 
 
 
