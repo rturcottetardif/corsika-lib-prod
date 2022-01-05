@@ -7,13 +7,11 @@ import numpy as np
 from python_tools import FileHandler
 import time
 
-#IdBegin = 0
-
 #### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
-UseStar = True
-UsePrototype = False
-UseRealAtmos = True
-UseCONEX = True
+# UseStar = True
+# UsePrototype = False
+# UseRealAtmos = True
+# UseCONEX = True
 
 
 SendToCondor = False
@@ -102,7 +100,7 @@ class ShowerGroup(object):
               self.coreX, self.coreY,
               self.primary, self.nShowers))
 
-    def SubmitShowers(self):
+    def SubmitShowers(self, IdBegin=0):
 
         MakeSubFile(self.runID, self.eventID,
                     self.zenith, self.azimuth,
@@ -165,7 +163,7 @@ def DoThin(peV, zenith):
 
 def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
 
-    print("Making subfile begining with id", IdBegin)
+    print("Making subfile begining with id", id)
     print("runID {0}, eventID {1}".format(runID, eventID))
 
     file = open("tempSubFile.submit", "w")
@@ -333,7 +331,7 @@ def printSettings():
     print("I simulate {0} showers of proton and {0} of iron".format(nShowers))
 
 
-def simulateOneFile(filename):
+def simulateOneFile(filename, IdBegin=0):
     printSettings()
     showerList = []
     with open(filename, 'rb') as f:
@@ -342,44 +340,55 @@ def simulateOneFile(filename):
             try:
                 event = np.load(f)
                 """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
-                showerList += ShowerString(filename, event["runId"], event["eventId"], [proton, iron], nShowers)
+                showerList += ShowerString(filename, event["runId"], event["eventId"], [proton], nShowers)
             except ValueError:
                 for i, shwr in enumerate(showerList):
-                    shwr.SubmitShowers()
+                    shwr.SubmitShowers(IdBegin)
+                    if Increment:
+                        IdBegin += nShowers
                 next = False
                 exit()
 
 
 if (__name__ == '__main__'):
-    #IdBegin = 0
     proton = 14
     iron = 5626
-    #filename = handler.basedir + "/resources/exampleShowerlist.npy"
-    #runId = 134739
-    #eventId = 8585668
-    #nShowers = 20
+
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--input', type=str, default=handler.basedir + "/resources/exampleShowerlist.npy",
                         help='List of CoREAS simulation directories')
     parser.add_argument('-n', '--nShowers', type=int, default=20,
                         help='number of simulation of proton and iron')
-    parser.add_argument('--no-conex', dest='noConex', action='store_false',
+    parser.add_argument('--no-conex', dest='conex', action='store_false',
                         help='The simulation will use the standard coreas')
+    parser.add_argument('--conex', dest='conex', action='store_true',
+                        help='The simulation will use conex')
     parser.add_argument('--no-atmos', dest='noAtmos', action='store_false',
+                        help='The simulation will use the standard aatmosphere')
+    parser.add_argument('--atmos', dest='atmos', action='store_true',
                         help='The simulation will use the standard aatmosphere')
     parser.add_argument('--id', type=int, default=0,
                         help='The starting number of the simulations')
     parser.add_argument('-p', '--prototype', dest='proto', action='store_true',
-                        help='Will simulate on protytpe station layou')
-    parser.add_argument('--test', dest='test', action='store_true',
+                        help='Will simulate on protytpe station layout')
+    parser.add_argument('-i', '--increment', dest='increment', action='store_true',
+                        help='This is to be used if the same runID is multiple time in the file')
+    parser.add_argument('-test', dest='test', action='store_true',
                         help='just for testing')
+    parser.set_defaults(conex=True)
+    parser.set_defaults(atmos=True)
+    parser.set_defaults(proto=False)
+    parser.set_defaults(test=False)
+    parser.set_defaults(increment=False)
     args = parser.parse_args()
 
-    print(args.input)
+    # --------------------
+    # Setting the simulation properties
     IdBegin = args.id
+    Increment = args.increment
     nShowers = args.nShowers
-    UseCONEX = args.noConex
+    UseCONEX = args.conex
     UseStar = not args.proto
     UsePrototype = args.proto
     UseRealAtmos = args.noAtmos
@@ -399,9 +408,9 @@ if (__name__ == '__main__'):
         showerList += ShowerString(args.input, runId, eventId, [proton, iron], nShowers)
         for i, shwr in enumerate(showerList):
             shwr.SubmitShowers()
-        # ======================
+    # ======================
 
-    simulateOneFile(args.input)
+    simulateOneFile(args.input, IdBegin)
     #printSettings()
 
 
