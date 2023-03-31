@@ -58,9 +58,9 @@ maxWeight = (handler.corOpts.shower.energy * 1.e6) * thinningVal
 
 file.write('RUNNR       {0}\n'.format(handler.corOpts.eventID))
 file.write('EVTNR       1\n')
-file.write('SEED        {0}    0    0\n'.format(seed1)) #
-file.write('SEED        {0}    0    0\n'.format(seed2)) #
-file.write('SEED        {0}    0    0\n'.format(seed3)) #
+file.write('SEED        {0}    0    0\n'.format(seed1)) # seed for hadronic part
+file.write('SEED        {0}    0    0\n'.format(seed2)) # seed for EGS4 part
+file.write('SEED        {0}    0    0\n'.format(seed3)) # seed for Cherenkov part
 file.write('NSHOW       1\n')
 file.write('ERANGE      {0}e+6    {0}e+6\n'.format(handler.corOpts.shower.energy)) # in GeV
 file.write('ESLOPE      -1.0\n')
@@ -101,7 +101,8 @@ file.write('OBSLEV      {0}\n'.format(handler.corOpts.obslev))
 file.write('ECTMAP      1.e11\n')
 file.write('SIBYLL      T    0\n')
 file.write('SIBSIG      T\n')
-file.write('FIXHEI      0.    0\n')
+file.write('FIXHEI      {0}    0\n'.format(handler.corOpts.fixHeight))
+# file.write('FIXHEI      0.    0\n')
 file.write('HADFLG      0    1    0    1    0    2\n')
 file.write('STEPFC      1.0\n')
 file.write('MUMULT      T\n')

@@ -8,10 +8,10 @@ from python_tools import FileHandler
 import time
 
 #### YOU CANT USE STAR AND PROTOTYPE ! is both false, uses complete array
-# UseStar = True
-# UsePrototype = False
-# UseRealAtmos = True
-# UseCONEX = True
+UseCONEX = False
+UseStar = True
+UsePrototype = False
+UseRealAtmos = True
 
 
 SendToCondor = False
@@ -59,6 +59,9 @@ class ShowerGroup(object):
         self.primary = prim
         self.nShowers = n
 
+        self.seed = False
+        self.fixHeight = False
+
         self.getShowerInfo()
 
     def getShowerInfo(self):
@@ -91,6 +94,12 @@ class ShowerGroup(object):
     def setAzimuth(self, azi):
         self.azimuth = azi
 
+    def setSeed(self, seed):
+        self.seed = seed
+
+    def setFixHeight(self, height):
+        self.fixHeight = height
+
     def printShowerInfo(self):
         print("{0} \n runID {1}, eventID {2}, zen {3}, azi {4}, ener {5}, core {6} {7}, prim {8}, n {9} ".format(
               self.filename,
@@ -106,7 +115,9 @@ class ShowerGroup(object):
                     self.zenith, self.azimuth,
                     self.energy, self.coreX,
                     self.coreX, self.primary,
-                    self.nShowers, IdBegin)
+                    self.nShowers, IdBegin,
+                    fixHeight=self.fixHeight,
+                    seed=self.seed)
 
         cluster = GetCluster()
         if "caviness" == cluster:
@@ -153,6 +164,9 @@ def ShowerString(filename, runID, eventID, prims, n, **kwargs):
         if 'energy' in kwargs.keys():
             print("Changing energy from {0} to {1}".format(shwr.energy, kwargs['energy']))
             shwr.setEnergy(kwargs['energy'])
+        if 'fixHeight' in kwargs.keys():
+            shwr.setFixHeight(kwargs['fixHeight'])
+            print("fixing the first interaction at {0}".format(shwr.fixHeight))
         tempList.append(shwr)
     return tempList
 
@@ -161,7 +175,7 @@ def DoThin(peV, zenith):
     return True
 
 
-def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
+def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id, **kwargs):
 
     print("Making subfile begining with id", id)
     print("runID {0}, eventID {1}".format(runID, eventID))
@@ -235,8 +249,9 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
         else:
             file.write("Universe = vanilla\n")
             file.write("request_memory = 2GB\n")
-            if UseStar and not UseCONEX:
-                file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+            # Uncommment this line to longer processing time
+            # if UseStar and not UseCONEX:
+            file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -272,7 +287,12 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id):
         file.write("--realAtmosphere ")
 
     if UseCONEX:
-        file.write("--fastShowers")
+        file.write("--fastShowers ")
+
+    if kwargs["fixHeight"]:
+        file.write("--fixHeight "+str(kwargs["fixHeight"])+" ")
+    if kwargs['seed']:
+        file.write("--seed "+str(kwargs["seed"])+" ")
     file.write("\n")
 
     if "icecube" == cluster:
@@ -340,7 +360,7 @@ def simulateOneFile(filename, IdBegin=0):
             try:
                 event = np.load(f)
                 """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
-                showerList += ShowerString(filename, event["runId"], event["eventId"], [proton], nShowers)
+                showerList += ShowerString(filename, event["runId"], event["eventId"], [proton, iron], nShowers)
             except ValueError:
                 for i, shwr in enumerate(showerList):
                     shwr.SubmitShowers(IdBegin)
@@ -374,9 +394,9 @@ if (__name__ == '__main__'):
                         help='Will simulate on protytpe station layout')
     parser.add_argument('-i', '--increment', dest='increment', action='store_true',
                         help='This is to be used if the same runID is multiple time in the file')
-    parser.add_argument('-test', dest='test', action='store_true',
+    parser.add_argument('--test', dest='test', action='store_true',
                         help='just for testing')
-    parser.set_defaults(conex=True)
+    parser.set_defaults(conex=False)
     parser.set_defaults(atmos=True)
     parser.set_defaults(proto=False)
     parser.set_defaults(test=False)
@@ -392,26 +412,30 @@ if (__name__ == '__main__'):
     UseStar = not args.proto
     UsePrototype = args.proto
     UseRealAtmos = args.noAtmos
+    proton = 14
+    iron = 5626
 
     # ======================
     ## EXAMPLE : SIMULATING ONE EVENT
     if args.test:
     # if you use the test option be careful to remove that simulation afterwards
-        IdBegin = 0
-        proton = 14
-        iron = 5626
-        runId = 134739
-        eventId = 8585668
-        nShowers = 2
+        IdBegin = 1
+        runId = 134869
+        eventId = 76177953
+        # runId = 134751
+        # eventId = 1987768
+        nShowers = 50
+
         showerList = []
         """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
         showerList += ShowerString(args.input, runId, eventId, [proton, iron], nShowers)
         for i, shwr in enumerate(showerList):
-            shwr.SubmitShowers()
+            shwr.SubmitShowers(IdBegin)
     # ======================
 
-    simulateOneFile(args.input, IdBegin)
-    #printSettings()
+    else:
+        simulateOneFile(args.input, IdBegin)
+        #printSettings()
 
 
     # VARYING THE ENERGY

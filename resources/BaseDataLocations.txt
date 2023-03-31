@@ -3,6 +3,8 @@ LOGFILE_DIR  = /home/acoleman/work/datasets/sim-log-files/
 TEMP_DIR     = /home/acoleman/work/datasets/coreas/temp
 
 CORSIKA_DIR = /home/acoleman/programs/corsika/corsika-77401/run
+#CORSIKA_EXE = corsika77401Linux_SIBYLL_fluka_thin_conex_coreas
 CORSIKA_EXE = corsika77401Linux_SIBYLL_fluka_thin_conex_coreas
-CORSIKA_NOTHIN = corsika77401Linux_SIBYLL_fluka_thin_conex
+#CORSIKA_NOTHIN = corsika77401Linux_SIBYLL_fluka_thin_conex
+CORSIKA_NOTHIN = $CORSIKA_EXE
 CORSIKA_MPI = NONE

@@ -67,6 +67,7 @@ class CorsikaOptions(object):
     parser.add_argument('--proto', action='store_true', help='Use the prototype station configuration')
     parser.add_argument('--realAtmosphere', action='store_true', help='uses a real atmosphere')
     parser.add_argument('--fastShowers', action='store_true', help='use CONEX in fast simulation')
+    parser.add_argument('--fixHeight', type=float, default=0., help='first intereaction in cm')
 
     parser.add_argument('--minSin2', type=float, default=self.minSin2)
     parser.add_argument('--maxSin2', type=float, default=self.maxSin2)
@@ -79,8 +80,6 @@ class CorsikaOptions(object):
     parser.add_argument('--randRadius', type=float, default=self.randRadius)
 
     parser.add_argument('--runID', action='store_true', help='if there, it is a real measurement')
-
-
     args, unknown = parser.parse_known_args()
 
     if (args.minSin2 != self.minSin2) != (args.maxSin2 != self.maxSin2):
@@ -106,6 +105,7 @@ class CorsikaOptions(object):
     self.minLgE = args.minLgE
     self.energyIndex = args.energyIndex
     self.dE = args.dE
+    self.fixHeight = args.fixHeight
 
     self.randRadius = args.randRadius
     if self.useStar:
