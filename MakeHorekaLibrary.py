@@ -114,7 +114,7 @@ class ShowerGroup(object):
         MakeSubFile(self.runID, self.eventID,
                     self.zenith, self.azimuth,
                     self.energy, self.coreX,
-                    self.coreX, self.primary,
+                    self.coreY, self.primary,
                     self.nShowers, IdBegin,
                     fixHeight=self.fixHeight,
                     seed=self.seed)

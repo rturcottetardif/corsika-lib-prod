@@ -138,22 +138,34 @@ print('\tCore at antenna level  ({0:0.2f}, {1:0.2f}, {2:0.2f}) [m]'.format(handl
 thRad = handler.corOpts.shower.zenith*np.pi/180.
 aziRad = handler.corOpts.shower.azimuth*np.pi/180.-np.pi
 nUnit = [np.sin(thRad)*np.sin(aziRad), np.sin(thRad)*np.cos(aziRad), np.cos(thRad)] #Direction the shower is coming from
-if not handler.corOpts.proto:
-  antennaHeight = handler.corOpts.antennaHeight
-if handler.corOpts.proto:
-  antennaHeight = 283282    # Hard coded height of prototype Antennas
+# if not handler.corOpts.proto:
+antennaHeight = handler.corOpts.antennaHeight
+#   print("not proto, height ", antennaHeight)
+# if handler.corOpts.proto:
+#   antennaHeight = 283282    # Hard coded height of prototype Antennas
+#   print("proto, height ", antennaHeight)
 
 dCore = np.array(nUnit) * (handler.corOpts.obslev - antennaHeight) / np.cos(thRad)
 
+# Used to be that....
 coreXToPrint = handler.corOpts.shower.coreX * 1.e2 + dCore[0]
 coreYToPrint = handler.corOpts.shower.coreY * 1.e2 + dCore[1]
+
+# coreXToPrint = handler.corOpts.shower.coreX * 1.e2
+# coreYToPrint = handler.corOpts.shower.coreY * 1.e2
 
 print('\tCore at CORSIKA OBSLEV ({0:0.2f}, {1:0.2f}, {2:0.2f}) [m]'.format(coreXToPrint*1e-2, coreYToPrint*1e-2, handler.corOpts.obslev*1e-2))
 
 file2.write('# parameters setting up the spatial observer configuration:\n')
 # Core at observation level
-file2.write('CoreCoordinateNorth = {0}     ; in cm\n'.format(coreYToPrint))#####Specify core position x in corsika coordinates
-file2.write('CoreCoordinateWest = {0}     ; in cm\n'.format(coreXToPrint))#####Specify core position y in corsika coordinates
+# Used to be that.....
+# file2.write('CoreCoordinateNorth = {0}     ; in cm\n'.format(coreYToPrint))#####Specify core position x in corsika coordinates
+# file2.write('CoreCoordinateWest = {0}     ; in cm\n'.format(coreXToPrint))#####Specify core position y in corsika coordinates
+
+file2.write('CoreCoordinateNorth = {0}     ; in cm\n'.format(coreXToPrint))#####Specify core position x in corsika coordinates
+file2.write('CoreCoordinateWest = {0}     ; in cm\n'.format(coreYToPrint))#####Specify core position y in corsika coordinates
+
+
 file2.write('CoreCoordinateVertical = {0}     ; in cm\n'.format(handler.corOpts.obslev))####Observation height
 file2.write('\n')
 file2.write('# parameters setting up the temporal observer configuration:\n')

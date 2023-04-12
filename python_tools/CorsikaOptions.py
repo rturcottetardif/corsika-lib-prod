@@ -48,7 +48,7 @@ class CorsikaOptions(object):
     self.useRandEnergy = False
 
     self.seed = 0
-    self.randRadius = 400.
+    self.randRadius = False
 
 
   def GetPrimaryName(self):
@@ -142,11 +142,13 @@ class CorsikaOptions(object):
       phi = np.pi * 2 * random.random()
       self.shower.coreX = r * np.cos(phi)
       self.shower.coreY = r * np.sin(phi)
-    if self.useStar:
+      print("Using random core within a radius of ", self.randRadius)
+    elif self.useStar:
       self.shower.coreX = 0.
       self.shower.coreY = 0.
+      print("Uses Star pattern, I will put the core at 0, 0")
     else:
-      print("Core from reconstruction at {0}, {1}".format(self.shower.coreX, self.shower.coreY))
+      print("Core from reconstruction at {0:.2f}, {1:.2f}".format(self.shower.coreX, self.shower.coreY))
 
 
     if self.useRandZen:
