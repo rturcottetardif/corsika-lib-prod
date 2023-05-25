@@ -251,7 +251,7 @@ def MakeSubFile(runID, eventID, zen, azi, eng, coreX, coreY, prim, n, id, **kwar
             file.write("request_memory = 2GB\n")
             # Uncommment this line to longer processing time
             # if UseStar and not UseCONEX:
-            file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
+            # file.write("+AccountingGroup=\"1_week.$ENV(USER)\" \n\n\n")
 
         file.write("Arguments= --id $(ID) ")
 
@@ -419,17 +419,18 @@ if (__name__ == '__main__'):
     ## EXAMPLE : SIMULATING ONE EVENT
     if args.test:
     # if you use the test option be careful to remove that simulation afterwards
-        IdBegin = 1
-        runId = 134869
-        eventId = 76177953
-        # runId = 134751
-        # eventId = 1987768
-        nShowers = 50
+        runId = 134774
+        eventId = 7861658
+        # runId = 134777
+        # eventId = 12754797
+        nShowers = 1
+        print("ID: ", IdBegin)
 
         showerList = []
         """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
         showerList += ShowerString(args.input, runId, eventId, [proton, iron], nShowers)
         for i, shwr in enumerate(showerList):
+            # shwr.setEnergy(10)
             shwr.SubmitShowers(IdBegin)
     # ======================
 

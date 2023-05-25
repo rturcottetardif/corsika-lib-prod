@@ -159,9 +159,11 @@ print('\tCore at CORSIKA OBSLEV ({0:0.2f}, {1:0.2f}, {2:0.2f}) [m]'.format(coreX
 file2.write('# parameters setting up the spatial observer configuration:\n')
 # Core at observation level
 # Used to be that.....
+# works for star but not array... Quite confused
 # file2.write('CoreCoordinateNorth = {0}     ; in cm\n'.format(coreYToPrint))#####Specify core position x in corsika coordinates
 # file2.write('CoreCoordinateWest = {0}     ; in cm\n'.format(coreXToPrint))#####Specify core position y in corsika coordinates
 
+# That works for Array simulations but not start
 file2.write('CoreCoordinateNorth = {0}     ; in cm\n'.format(coreXToPrint))#####Specify core position x in corsika coordinates
 file2.write('CoreCoordinateWest = {0}     ; in cm\n'.format(coreYToPrint))#####Specify core position y in corsika coordinates
 
