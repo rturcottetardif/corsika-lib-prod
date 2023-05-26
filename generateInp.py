@@ -138,14 +138,16 @@ print('\tCore at antenna level  ({0:0.2f}, {1:0.2f}, {2:0.2f}) [m]'.format(handl
 thRad = handler.corOpts.shower.zenith*np.pi/180.
 aziRad = handler.corOpts.shower.azimuth*np.pi/180.-np.pi
 nUnit = [np.sin(thRad)*np.sin(aziRad), np.sin(thRad)*np.cos(aziRad), np.cos(thRad)] #Direction the shower is coming from
+
+
 # if not handler.corOpts.proto:
-antennaHeight = handler.corOpts.antennaHeight
-#   print("not proto, height ", antennaHeight)
+  # antennaHeight = handler.corOpts.antennaHeight
+#   # print("not proto, height ", antennaHeight)
 # if handler.corOpts.proto:
 #   antennaHeight = 283282    # Hard coded height of prototype Antennas
-#   print("proto, height ", antennaHeight)
-
-dCore = np.array(nUnit) * (handler.corOpts.obslev - antennaHeight) / np.cos(thRad)
+# #   print("proto, height ", antennaHeight)
+# dCore = np.array(nUnit) * (handler.corOpts.obslev - antennaHeight) / np.cos(thRad)
+dCore = [0, 0]
 
 # Used to be that....
 coreXToPrint = handler.corOpts.shower.coreX * 1.e2 + dCore[0]

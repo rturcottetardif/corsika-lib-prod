@@ -7,8 +7,10 @@ from icecube.dataclasses import I3Constants, I3Position
 from icecube.icetray.i3logging import log_warn, log_info, log_fatal
 import extractI3Variables as i3var
 
+
 # ANTENNA HEIGHT IS 2838m
-antennaHeight = 2838 * I3Units.m
+antennaHeight = 2840 * I3Units.m # FOR STAR (==ObsLevel)
+# antennaHeight = 2832.19 * I3Units.m # FOR ARRAY
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots()
 ax.set_xlabel("zenith / degree")
@@ -21,7 +23,7 @@ def aziI3ParticleToCoREAS(azimuth):
 
 def moveCoreToAntennaLevel(i3PartPos, i3PartDir):
     return i3PartPos + i3PartDir * ((i3PartPos.z + I3Constants.OriginElev - antennaHeight)/np.cos(i3PartDir.zenith))
-
+    # return i3PartPos - i3PartDir * ((i3PartPos.z + I3Constants.OriginElev - antennaHeight) / i3PartDir.z)
 
 def formatingArray(unixTime, runId, eventId, zenith, azimuth,
                    energy, coreX_antennaLev, coreY_antennaLev, coreZ_antennaLev):
@@ -56,22 +58,30 @@ def getInfoForSim(frame):
 
     if args.conversion:
         print("saving the infos converted to CoREAS...")
+        print("Core reconstructed by IT, ", I3Part.pos)
+        print("Direction reco by IT", I3Part.dir)
+
+        # We rotate the raised The Azimuth form IC to CoREAS and save them outside
         zen = I3Part.dir.zenith / I3Units.degree
         azi = aziI3ParticleToCoREAS(I3Part.dir.azimuth) / I3Units.degree
-        print("Core reconstructed by IT, ", I3Part.pos)
-        # The direction and position are in IC Coord.
-        # We raise the IC core to the antenna level (2838m)
-        I3PartPos = moveCoreToAntennaLevel(I3Part.pos, I3Part.dir)
-        # We rotate the raised core to the North-West Coord. system
-        # of CoREAS.
-        print("core at Ant. Height", I3PartPos)
-        I3PartPos.rotate_z(-radcube.GetMagneticRotation())
-        print("Core in North-West coord. system ", I3PartPos)
 
-        core_Ant = I3PartPos
+        # The direction and position are in IC Coord.
+        # We raise the IC core to the antenna level
+        print("z height IT", I3Part.pos.z + I3Constants.OriginElev)
+        I3Part.pos = moveCoreToAntennaLevel(I3Part.pos, I3Part.dir)
+        print("after", I3Part.pos)
+
+        # transfo to CoREAS ref. system
+        I3Part.pos.rotate_z(-radcube.GetMagneticRotation())
+        print("Core in North-West coord. system ", I3Part.pos)
+
+        core_Ant = I3Part.pos
         coreX = core_Ant.x / I3Units.m
         coreY = core_Ant.y / I3Units.m
+        # Put the core at the antenna level
         coreZ = (core_Ant.z + I3Constants.OriginElev) / I3Units.m
+        print("saving core: ", coreX, coreY, coreZ)
+        print("saving dir: ", zen, azi)
 
     else:
         print("I get directly the IceTop reconstruction...")
@@ -101,7 +111,7 @@ def saveNpyWithGivenI3File(outputName, I3File):
     with open(outputName, 'wb') as f:
         in_file = dataio.I3File(I3File, 'r')
         for frame in in_file:
-            if in_file.stream == I3Frame.DAQ:
+            if in_file.stream == I3Frame.Physics:
                 info = getInfoForSim(frame)
                 if (args.runid != 0) and (args.runid == info["runId"]):
                     print("saving....")

@@ -419,8 +419,13 @@ if (__name__ == '__main__'):
     ## EXAMPLE : SIMULATING ONE EVENT
     if args.test:
     # if you use the test option be careful to remove that simulation afterwards
+        # 76-set
         runId = 134774
         eventId = 7861658
+        # Abduls' set
+        runId = 136384
+        eventId = 58691995
+        # thesis set
         # runId = 134777
         # eventId = 12754797
         nShowers = 1
@@ -430,7 +435,7 @@ if (__name__ == '__main__'):
         """showerList += ShowerString(file_with_showers, runID, eventID, [Primaries], nSimulations)"""
         showerList += ShowerString(args.input, runId, eventId, [proton, iron], nShowers)
         for i, shwr in enumerate(showerList):
-            # shwr.setEnergy(10)
+            # shwr.setEnergy(0.1)
             shwr.SubmitShowers(IdBegin)
     # ======================
 
